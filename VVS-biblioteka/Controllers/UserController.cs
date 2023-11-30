@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using VVS_biblioteka.Models;
@@ -35,6 +36,21 @@ namespace VVS_biblioteka.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserRequest req)
         {
+            if (req.Password.Length < 6)
+            {
+                throw new ArgumentException("Password must be at least 6 characters long.");
+            }
+
+            if (!IsValidName(req.FirstName) || !IsValidName(req.LastName))
+            {
+                throw new ArgumentException("First name and last name can only contain letters.");
+            }
+
+            if (!IsValidEmailDomain(req.Email))
+            {
+                throw new ArgumentException("Invalid email domain. Allowed domains are gmail.com, etf.unsa.ba, yahoo.com, or outlook.com.");
+            }
+
             if (ModelState.IsValid)
             {
                 var user = new User
@@ -66,7 +82,7 @@ namespace VVS_biblioteka.Controllers
                 return Ok(new { Message = "Login successful" });
             }
 
-            return Unauthorized(new { Message = "Invalid email or password" });
+            throw new SecurityTokenException("Invalid email or password");
         }
 
         [HttpGet]
@@ -85,7 +101,59 @@ namespace VVS_biblioteka.Controllers
                 }
             }
 
-            return NotFound();
+            throw new HttpRequestException("User not found");
+        }
+
+        [HttpGet]
+        [Route("search")]
+        public IActionResult SearchUsers([FromQuery] string keyword)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(keyword))
+                    throw new ArgumentException("Search keyword cannot be empty.");
+
+                var users = _context.User
+                    .Where(u => EF.Functions.Like(u.FirstName, $"%{keyword}%") || EF.Functions.Like(u.LastName, $"%{keyword}%"))
+                    .ToList();
+
+                users = SortAlphanumerically(users);
+
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error searching users.", Error = ex.Message });
+            }
+        }
+
+        private static List<User> SortAlphanumerically(List<User> users)
+        {
+            for (int i = 0; i < users.Count - 1; i++)
+            {
+                for (int j = 0; j < users.Count - i - 1; j++)
+                {
+                    // Compare last names
+                    if (string.Compare(users[j].LastName, users[j + 1].LastName, StringComparison.OrdinalIgnoreCase) > 0)
+                    {
+                        // Swap users
+                        var temp = users[j];
+                        users[j] = users[j + 1];
+                        users[j + 1] = temp;
+                    }
+                    // If last names are equal, compare first names
+                    else if (string.Compare(users[j].LastName, users[j + 1].LastName, StringComparison.OrdinalIgnoreCase) == 0 &&
+                             string.Compare(users[j].FirstName, users[j + 1].FirstName, StringComparison.OrdinalIgnoreCase) > 0)
+                    {
+                        // Swap users
+                        var temp = users[j];
+                        users[j] = users[j + 1];
+                        users[j + 1] = temp;
+                    }
+                }
+            }
+
+            return users;
         }
 
         private static bool VerifyPassword(string inputPassword, string hashedPassword)
@@ -100,6 +168,20 @@ namespace VVS_biblioteka.Controllers
                 byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
                 return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
+        }
+
+        private bool IsValidName(string name)
+        {
+            // Validate that the name contains only letters
+            return !string.IsNullOrWhiteSpace(name) && name.All(char.IsLetter);
+        }
+
+        private bool IsValidEmailDomain(string email)
+        {
+            // Validate email domain
+            string[] allowedDomains = { "gmail.com", "etf.unsa.ba", "yahoo.com", "outlook.com" };
+            string domain = email.Split('@').LastOrDefault()?.ToLower();
+            return domain != null && allowedDomains.Contains(domain);
         }
     }
 }
