@@ -85,6 +85,14 @@ namespace VVS_biblioteka.Controllers
             throw new SecurityTokenException("Invalid email or password");
         }
 
+        [HttpPost]
+        [Route("logout")]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return Ok(new { Message = "Logout successful" });
+        }
+
         [HttpGet]
         [Route("currentuser")]
         public IActionResult GetCurrentUser()
