@@ -3,7 +3,7 @@ using VVS_biblioteka.Models;
 
 namespace VVS_biblioteka
 {
-    public class LibDbContext: DbContext
+    public class LibDbContext : DbContext
     {
         public LibDbContext(DbContextOptions<LibDbContext> options)
             : base(options)
@@ -11,5 +11,8 @@ namespace VVS_biblioteka
         }
 
         public DbSet<User> User { get; set; }
+        
+        public DbSet<Book> Book {  get; set; }
+        public DbSet<Loan> Loan { get; set; }
     }
 }
