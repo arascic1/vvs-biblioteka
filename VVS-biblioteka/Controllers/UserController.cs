@@ -191,5 +191,10 @@ namespace VVS_biblioteka.Controllers
             string domain = email.Split('@').LastOrDefault()?.ToLower();
             return domain != null && allowedDomains.Contains(domain);
         }
+
+        public LibDbContext GetContext()
+        {
+            return _context;
+        }
     }
 }
