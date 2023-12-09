@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using VVS_biblioteka.Models;
@@ -53,6 +54,11 @@ namespace VVS_biblioteka.Controllers
             {
                 throw new ArgumentException("Invalid email domain. Allowed domains are gmail.com, etf.unsa.ba, yahoo.com, or outlook.com.");
             }
+            if (!IsValidType(req.UserType))
+            {
+                throw new ArgumentException("Invalid type of user!");
+            }
+            
 
             if (ModelState.IsValid)
             {
@@ -257,12 +263,17 @@ namespace VVS_biblioteka.Controllers
                 return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
         }
+        
 
         private bool IsValidName(string name)
         {
             // Validate that the name contains only letters
             return !string.IsNullOrWhiteSpace(name) && name.All(char.IsLetter);
         }
+private bool IsValidType(UserType userType)
+{
+    return userType==UserType.Student || userType==UserType.Penzioner || userType==UserType.Dijete || userType==UserType.Ucenik;
+}
 
         private bool IsValidEmailDomain(string email)
         {
