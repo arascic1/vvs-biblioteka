@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 using VVS_biblioteka.Models;
@@ -61,6 +62,7 @@ namespace VVS_biblioteka.Controllers
                     LastName = req.LastName,
                     Email = req.Email,
                     PasswordHash = HashPassword(req.Password)
+                    ExpirationDate=DateTime.Now.AddMonths(12);
                     UserType=req.UserType;
                 };
 
