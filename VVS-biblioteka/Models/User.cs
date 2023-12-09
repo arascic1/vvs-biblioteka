@@ -13,6 +13,18 @@ namespace VVS_biblioteka.Models
         [Required]
         public string LastName { get; set; }
 
+      
+        public enum UserType
+        {
+            Student,
+            Ucenik,
+            Penzioner,
+            Dijete
+        }
+        [Required]
+        public UserType userType { get; set; }
+
+
         [Required]
         [EmailAddress]
         public string Email { get; set; }
@@ -33,12 +45,13 @@ namespace VVS_biblioteka.Models
                 && FirstName == other.FirstName 
                 && LastName == other.LastName 
                 && Email == other.Email 
-                && PasswordHash == other.PasswordHash;
+                && PasswordHash == other.PasswordHash
+                && UserType==other.UserType;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, FirstName, LastName, Email, PasswordHash);
+            return HashCode.Combine(Id, FirstName, LastName, Email, PasswordHash,UserType);
         }
     }
 }

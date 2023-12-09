@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using VVS_biblioteka.Models;
+using static VVS_biblioteka.Models.User;
 
 namespace VVS_biblioteka.Controllers
 {
@@ -59,6 +61,7 @@ namespace VVS_biblioteka.Controllers
                     LastName = req.LastName,
                     Email = req.Email,
                     PasswordHash = HashPassword(req.Password)
+                    UserType=req.GetType
                 };
 
                 _context.User.Add(user);
@@ -91,7 +94,12 @@ namespace VVS_biblioteka.Controllers
         {
             HttpContext.Session.Clear();
             return Ok(new { Message = "Logout successful" });
+
         }
+
+        [HttpGet]
+
+       
 
         [HttpGet]
         [Route("currentuser")]
@@ -105,14 +113,70 @@ namespace VVS_biblioteka.Controllers
 
                 if (user != null)
                 {
-                    return Ok(user);
+                    string tip = "";
+                    switch (user.userType)
+                    {
+                        case Models.User.UserType.Student:
+                            tip="Student";
+ ;
+                            break;
+                        case Models.User.UserType.Ucenik:
+                            tip="Ucenik";
+                            ;
+                            break;
+                        case Models.User.UserType.Penzioner:
+                            tip="Penzioner";
+                            ;
+                            break;
+                        case Models.User.UserType.Dijete:
+                            tip="Dijete";
+                            ;
+                            break;
+                        default:
+                            tip = "Nepoznato";
+                            break;
+
+
+                    }
+                    return Ok(new
+                    {
+                        UserId = user.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        UserType = tip
+                    });
+
                 }
             }
 
             throw new HttpRequestException("User not found");
         }
+        public decimal ApplyDiscount(decimal price)
+        {
+            
+            if (UserType == UserType.Student)
+            {
+                return price * 0.9; 
+            }
+            else if (UserType==UserType.Ucenik)
+            {
+                return price*0.8;
+            }
+            else if(UserType==UserType.Penzioner || UserType==UserType.Dijete)
+            {
+                return price*0.95;
+            }
+           
+            else
+            {
+                return 
+                   price; 
+            }
+        }
+    }
 
-        [HttpGet]
+    [HttpGet]
         [Route("search")]
         public IActionResult SearchUsers([FromQuery] string keyword)
         {
@@ -191,6 +255,9 @@ namespace VVS_biblioteka.Controllers
             string domain = email.Split('@').LastOrDefault()?.ToLower();
             return domain != null && allowedDomains.Contains(domain);
         }
+       
+
+
 
         public LibDbContext GetContext()
         {
