@@ -58,7 +58,7 @@ namespace VVS_biblioteka.Controllers
             {
                 throw new ArgumentException("Invalid type of user!");
             }
-            
+
 
             if (ModelState.IsValid)
             {
@@ -67,19 +67,23 @@ namespace VVS_biblioteka.Controllers
                     FirstName = req.FirstName,
                     LastName = req.LastName,
                     Email = req.Email,
-                    PasswordHash = HashPassword(req.Password)
-                    ExpirationDate=DateTime.Now.AddMonths(12);
-                    UserType=req.UserType;
+                    PasswordHash = HashPassword(req.Password),
+                    ExpirationDate=DateTime.Now.AddMonths(12),
+                    UserType=req.UserType
                 };
-
-                _context.User.Add(user);
-                await _context.SaveChangesAsync();
-
-                return Ok();
             }
+
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+
 
             return BadRequest(ModelState);
         }
+    }
+
+    
 
         [HttpPost]
         [Route("login")]
@@ -182,7 +186,7 @@ namespace VVS_biblioteka.Controllers
                    price; 
             }
         }
-    }
+    
 
     [HttpGet]
         [Route("search")]
