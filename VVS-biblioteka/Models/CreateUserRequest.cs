@@ -3,13 +3,6 @@
 namespace VVS_biblioteka.Models
 
 {
-    public enum UserType
-    {
-        Student,
-        Ucenik,
-        Penzioner,
-        Dijete
-    }
     public class CreateUserRequest
     {
         [Required(ErrorMessage = "First name is required")]

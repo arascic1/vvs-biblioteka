@@ -5,14 +5,6 @@ namespace VVS_biblioteka.Models
 
 
 {
-
-  public enum UserType
-    {
-        Student,
-        Ucenik,
-        Penzioner,
-        Dijete
-    }
     public class User
     {
         public int Id { get; set; }
@@ -23,11 +15,7 @@ namespace VVS_biblioteka.Models
         [Required]
         public string LastName { get; set; }
 
-
         public UserType UserType { get; set; }
-
-
-
 
         [Required]
         [EmailAddress]

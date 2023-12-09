@@ -127,19 +127,19 @@ namespace VVS_biblioteka.Controllers
                     string tip = "";
                     switch (user.UserType)
                     {
-                        case Models.User.UserType.Student:
+                        case Models.UserType.Student:
                             tip="Student";
                             ;
                             break;
-                        case Models.User.UserType.Ucenik:
+                        case Models.UserType.Ucenik:
                             tip="Ucenik";
                             ;
                             break;
-                        case Models.User.UserType.Penzioner:
+                        case Models.UserType.Penzioner:
                             tip="Penzioner";
                             ;
                             break;
-                        case Models.User.UserType.Dijete:
+                        case Models.UserType.Dijete:
                             tip="Dijete";
                             ;
                             break;
@@ -152,9 +152,9 @@ namespace VVS_biblioteka.Controllers
                     return Ok(new
                     {
                         UserId = user.Id,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Email = user.Email,
+                        user.FirstName,
+                        user.LastName,
+                        user.Email,
                         UserType = tip
                     });
 
@@ -163,26 +163,25 @@ namespace VVS_biblioteka.Controllers
 
             throw new HttpRequestException("User not found");
         }
-        public decimal ApplyDiscount(decimal price, User user)
+
+        private decimal ApplyDiscount(decimal price, User user)
         {
 
             if (user.UserType == UserType.Student)
             {
-                return price * 0.9;
+                return price * (decimal)0.9;
             }
-            else if (user.UserType==UserType.Ucenik)
+            else if (user.UserType == UserType.Ucenik)
             {
-                return price*0.8;
+                return price * (decimal)0.8;
             }
-            else if (user.UserType==UserType.Penzioner || user.UserType==UserType.Dijete)
+            else if (user.UserType == UserType.Penzioner || user.UserType == UserType.Dijete)
             {
-                return price*0.95;
+                return price * (decimal)0.95;
             }
-
             else
             {
-                return
-                   price;
+                return price;
             }
         }
 
@@ -285,11 +284,5 @@ namespace VVS_biblioteka.Controllers
             string domain = email.Split('@').LastOrDefault()?.ToLower();
             return domain != null && allowedDomains.Contains(domain);
         }
-
-        public LibDbContext GetContext()
-        {
-            return _context;
-        }
-
     }
 }
