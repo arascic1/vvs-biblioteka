@@ -69,21 +69,20 @@ namespace VVS_biblioteka.Controllers
                     Email = req.Email,
                     PasswordHash = HashPassword(req.Password),
                     ExpirationDate=DateTime.Now.AddMonths(12),
-                    UserType=req.UserType
+                    userType=req.userType
                 };
+
+
+                _context.User.Add(user);
+                await _context.SaveChangesAsync();
+
+                return Ok();
             }
-
-            _context.User.Add(user);
-            await _context.SaveChangesAsync();
-
-            return Ok();
-
 
             return BadRequest(ModelState);
         }
-    }
+ 
 
-    
 
         [HttpPost]
         [Route("login")]
@@ -111,7 +110,7 @@ namespace VVS_biblioteka.Controllers
 
         [HttpGet]
 
-       
+
 
         [HttpGet]
         [Route("currentuser")]
@@ -130,7 +129,7 @@ namespace VVS_biblioteka.Controllers
                     {
                         case Models.User.UserType.Student:
                             tip="Student";
- ;
+                            ;
                             break;
                         case Models.User.UserType.Ucenik:
                             tip="Ucenik";
@@ -166,29 +165,29 @@ namespace VVS_biblioteka.Controllers
         }
         public decimal ApplyDiscount(decimal price)
         {
-            
-            if (UserType == UserType.Student)
+
+            if (req.UserType == UserType.Student)
             {
-                return price * 0.9; 
+                return price * 0.9;
             }
             else if (UserType==UserType.Ucenik)
             {
                 return price*0.8;
             }
-            else if(UserType==UserType.Penzioner || UserType==UserType.Dijete)
+            else if (UserType==UserType.Penzioner || UserType==UserType.Dijete)
             {
                 return price*0.95;
             }
-           
+
             else
             {
-                return 
-                   price; 
+                return
+                   price;
             }
         }
-    
 
-    [HttpGet]
+
+        [HttpGet]
         [Route("search")]
         public IActionResult SearchUsers([FromQuery] string keyword)
         {
@@ -267,17 +266,17 @@ namespace VVS_biblioteka.Controllers
                 return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
         }
-        
+
 
         private bool IsValidName(string name)
         {
             // Validate that the name contains only letters
             return !string.IsNullOrWhiteSpace(name) && name.All(char.IsLetter);
         }
-private bool IsValidType(UserType userType)
-{
-    return userType==UserType.Student || userType==UserType.Penzioner || userType==UserType.Dijete || userType==UserType.Ucenik;
-}
+        private bool IsValidType(UserType userType)
+        {
+            return userType==UserType.Student || userType==UserType.Penzioner || userType==UserType.Dijete || userType==UserType.Ucenik;
+        }
 
         private bool IsValidEmailDomain(string email)
         {
@@ -291,5 +290,6 @@ private bool IsValidType(UserType userType)
         {
             return _context;
         }
+
     }
 }

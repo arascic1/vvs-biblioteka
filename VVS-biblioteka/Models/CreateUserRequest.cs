@@ -19,7 +19,7 @@ namespace VVS_biblioteka.Models
         public string Password { get; set; }
         [Required(ErrorMessage = "Type of user is required")]
         [EnumDataType(typeof(UserType), ErrorMessage = "Invalid user type")]
-        public UserType UserType { get; set; }
+        public UserType userType { get; set; }
     }
 
     public enum UserType
