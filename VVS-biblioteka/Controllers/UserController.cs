@@ -61,7 +61,6 @@ namespace VVS_biblioteka.Controllers
                     LastName = req.LastName,
                     Email = req.Email,
                     PasswordHash = HashPassword(req.Password)
-                    UserType=req.GetType
                 };
 
                 _context.User.Add(user);
@@ -199,6 +198,20 @@ namespace VVS_biblioteka.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("membershiprenewal")]
+
+        public async Task<IActionResult> RenewMembership([FromBody] RenewalRequest req)
+        {
+            if (req.Months < 1) throw new ArgumentException("Number of months must be greater than 0.");
+            var user = _context.User.FirstOrDefault(u => u.Id == req.UserId);
+            if (user == null) throw new HttpRequestException("User not found.");
+            user.ExpirationDate = user.ExpirationDate.AddMonths(req.Months);
+            _context.User.Update(user);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
         private static List<User> SortAlphanumerically(List<User> users)
         {
             for (int i = 0; i < users.Count - 1; i++)
@@ -255,9 +268,6 @@ namespace VVS_biblioteka.Controllers
             string domain = email.Split('@').LastOrDefault()?.ToLower();
             return domain != null && allowedDomains.Contains(domain);
         }
-       
-
-
 
         public LibDbContext GetContext()
         {

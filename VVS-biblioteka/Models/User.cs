@@ -32,6 +32,8 @@ namespace VVS_biblioteka.Models
         [Required]
         public string PasswordHash { get; set; }
 
+        public DateTime ExpirationDate { get; set; }
+
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())
