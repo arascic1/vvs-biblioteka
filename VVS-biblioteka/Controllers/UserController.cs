@@ -61,6 +61,7 @@ namespace VVS_biblioteka.Controllers
                     LastName = req.LastName,
                     Email = req.Email,
                     PasswordHash = HashPassword(req.Password)
+                    UserType=req.UserType;
                 };
 
                 _context.User.Add(user);
