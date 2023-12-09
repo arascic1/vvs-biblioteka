@@ -2,7 +2,17 @@
 using System.Xml.Linq;
 
 namespace VVS_biblioteka.Models
+
+
 {
+
+  public enum UserType
+    {
+        Student,
+        Ucenik,
+        Penzioner,
+        Dijete
+    }
     public class User
     {
         public int Id { get; set; }
@@ -13,16 +23,10 @@ namespace VVS_biblioteka.Models
         [Required]
         public string LastName { get; set; }
 
-      
-        public enum UserType
-        {
-            Student,
-            Ucenik,
-            Penzioner,
-            Dijete
-        }
-        [Required]
-        public UserType userType { get; set; }
+
+        public UserType UserType { get; set; }
+
+
 
 
         [Required]
@@ -34,7 +38,7 @@ namespace VVS_biblioteka.Models
 
         public DateTime ExpirationDate { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType())
             {
@@ -43,10 +47,10 @@ namespace VVS_biblioteka.Models
 
             User other = (User)obj;
 
-            return Id == other.Id 
-                && FirstName == other.FirstName 
-                && LastName == other.LastName 
-                && Email == other.Email 
+            return Id == other.Id
+                && FirstName == other.FirstName
+                && LastName == other.LastName
+                && Email == other.Email
                 && PasswordHash == other.PasswordHash
                 && UserType==other.UserType;
         }

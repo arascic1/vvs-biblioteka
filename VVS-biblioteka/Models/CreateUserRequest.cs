@@ -1,7 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace VVS_biblioteka.Models
+
 {
+    public enum UserType
+    {
+        Student,
+        Ucenik,
+        Penzioner,
+        Dijete
+    }
     public class CreateUserRequest
     {
         [Required(ErrorMessage = "First name is required")]
@@ -19,15 +27,8 @@ namespace VVS_biblioteka.Models
         public string Password { get; set; }
         [Required(ErrorMessage = "Type of user is required")]
         [EnumDataType(typeof(UserType), ErrorMessage = "Invalid user type")]
-        public UserType userType { get; set; }
+        public UserType UserType { get; set; }
     }
 
-    public enum UserType
-    {
-        student,
-        ucenik,
-        penzioner,
-        dijete
-    }
-}
+    
 }

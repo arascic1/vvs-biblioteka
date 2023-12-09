@@ -69,7 +69,7 @@ namespace VVS_biblioteka.Controllers
                     Email = req.Email,
                     PasswordHash = HashPassword(req.Password),
                     ExpirationDate=DateTime.Now.AddMonths(12),
-                    userType=req.userType
+                    UserType=req.UserType
                 };
 
 
@@ -81,8 +81,8 @@ namespace VVS_biblioteka.Controllers
 
             return BadRequest(ModelState);
         }
- 
 
+    
 
         [HttpPost]
         [Route("login")]
@@ -125,7 +125,7 @@ namespace VVS_biblioteka.Controllers
                 if (user != null)
                 {
                     string tip = "";
-                    switch (user.userType)
+                    switch (user.UserType)
                     {
                         case Models.User.UserType.Student:
                             tip="Student";
@@ -163,18 +163,18 @@ namespace VVS_biblioteka.Controllers
 
             throw new HttpRequestException("User not found");
         }
-        public decimal ApplyDiscount(decimal price)
+        public decimal ApplyDiscount(decimal price, User user)
         {
 
-            if (req.UserType == UserType.Student)
+            if (user.UserType == UserType.Student)
             {
                 return price * 0.9;
             }
-            else if (UserType==UserType.Ucenik)
+            else if (user.UserType==UserType.Ucenik)
             {
                 return price*0.8;
             }
-            else if (UserType==UserType.Penzioner || UserType==UserType.Dijete)
+            else if (user.UserType==UserType.Penzioner || user.UserType==UserType.Dijete)
             {
                 return price*0.95;
             }
