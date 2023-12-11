@@ -12,8 +12,8 @@ using VVS_biblioteka;
 namespace VVS_biblioteka.Migrations
 {
     [DbContext(typeof(LibDbContext))]
-    [Migration("20231203230624_Migracija2")]
-    partial class Migracija2
+    [Migration("20231211124729_database")]
+    partial class database
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -27,10 +27,7 @@ namespace VVS_biblioteka.Migrations
             modelBuilder.Entity("VVS_biblioteka.Models.Book", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Author")
                         .IsRequired()
@@ -46,6 +43,9 @@ namespace VVS_biblioteka.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("price")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -86,6 +86,9 @@ namespace VVS_biblioteka.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -97,6 +100,9 @@ namespace VVS_biblioteka.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

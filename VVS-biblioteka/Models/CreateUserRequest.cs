@@ -18,6 +18,7 @@ namespace VVS_biblioteka.Models
         [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
+
         [Required(ErrorMessage = "Type of user is required")]
         [EnumDataType(typeof(UserType), ErrorMessage = "Invalid user type")]
         public UserType UserType { get; set; }

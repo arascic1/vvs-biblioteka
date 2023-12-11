@@ -1,15 +1,17 @@
-﻿namespace VVS_biblioteka.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace VVS_biblioteka.Models
 {
     public class Book
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id {  get; set; }
+
         public string Title { get; set; }
         public string Author {  get; set; }
         public string Description { get; set; }
         public bool Loaned {  get; set; }
         public int price { get; set; }
-       
-           
- 
     }
 }
