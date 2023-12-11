@@ -82,7 +82,31 @@ namespace VVS_biblioteka.Controllers
             return BadRequest(ModelState);
         }
 
-    
+        [HttpGet]
+        [Route("getLoanedBooks/{userId}")]
+        public IActionResult GetLoanedBooks(int userId)
+        {
+            var loansForUser = _context.Loan
+                .Where(l => l.UserId == userId)
+                .ToList();
+
+            if (loansForUser.Count == 0)
+            {
+                return NotFound($"No loaned books found for user with ID {userId}.");
+            }
+
+            var loanedBooks = new List<Book>();
+            foreach (var loan in loansForUser)
+            {
+                var book = _context.Book.FirstOrDefault(b => b.Id == loan.BookId);
+                if (book != null)
+                {
+                    loanedBooks.Add(book);
+                }
+            }
+
+            return Ok(loanedBooks);
+        }
 
         [HttpPost]
         [Route("login")]

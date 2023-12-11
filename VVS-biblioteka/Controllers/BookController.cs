@@ -34,6 +34,31 @@ namespace VVS_biblioteka.Controllers
             return Ok("Book added successfully!");
         }
 
+        [HttpGet]
+        [Route("getBookDetails/{bookId}")]
+        public IActionResult GetBookDetails(int bookId)
+        {
+            var book = _context.Book.FirstOrDefault(b => b.Id == bookId);
+
+            if (book == null)
+            {
+                return NotFound($"Book with ID {bookId} not found.");
+            }
+
+            var loan = _context.Loan.FirstOrDefault(l => l.BookId == bookId);
+
+            var user = loan != null ? _context.User.FirstOrDefault(u => u.Id == loan.UserId) : null;
+
+            var bookDetails = new
+            {
+                Book = book,
+                Loan = loan,
+                User = user
+            };
+
+            return Ok(bookDetails);
+        }
+
         [HttpDelete]
         [Route("deleteBook/{id}")]
         public async Task<IActionResult> DeleteBook(int id)
@@ -56,7 +81,10 @@ namespace VVS_biblioteka.Controllers
         public async Task<IActionResult> LoanBook(LoanRequest request)
         {
             Book book=_context.Book.FirstOrDefault(b => b.Id == request.BookId);
-            if (book.Loaned)
+
+            var isBookLoaned = _context.Loan.Any(l => l.BookId == book.Id);
+
+            if (isBookLoaned)
             {
                 throw new ArgumentException("Book is already loaned!");
             }
