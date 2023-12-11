@@ -76,11 +76,39 @@ namespace VVS_biblioteka.Controllers
             return Ok($"Book with ID {id} deleted successfully.");
         }
 
+        private void ApplyCategorySpecificBenefits(User user, Loan loan)
+        {
+            switch (user.UserType)
+            {
+                case UserType.Student:
+                    loan.Price = CalculateDiscountedFee(loan.Price, 30);
+                    loan.Days = 60;
+                    break;
+                case UserType.Ucenik:
+                    loan.Price = CalculateDiscountedFee(loan.Price, 10);
+                    loan.Days = 15;
+                    break;
+                case UserType.Penzioner:
+                    loan.Price = CalculateDiscountedFee(loan.Price, 15);
+                    loan.Days = 30;
+                    break;
+                case UserType.Dijete:
+                    loan.Price = CalculateDiscountedFee(loan.Price, 5);
+                    loan.Days = 10;
+                    break;
+            }
+        }
+
+        private decimal CalculateDiscountedFee(decimal baseFee, int discountPercentage)
+        {
+            return baseFee - (baseFee * discountPercentage / 100);
+        }
+
         [HttpPost]
         [Route("/{loanBook}")]
         public async Task<IActionResult> LoanBook(LoanRequest request)
         {
-            Book book=_context.Book.FirstOrDefault(b => b.Id == request.BookId);
+            Book book = _context.Book.FirstOrDefault(b => b.Id == request.BookId);
 
             var isBookLoaned = _context.Loan.Any(l => l.BookId == book.Id);
 
@@ -98,12 +126,15 @@ namespace VVS_biblioteka.Controllers
                 throw new ArgumentException("You already loaned book!");
             }
 
-            Loan l = new Loan
+            Loan l = new()
             {
                 BookId = request.BookId,
                 UserId = request.UserId,
-                Date = DateTime.Today
+                Date = DateTime.Today,
+                Price = book.price,
             };
+
+            ApplyCategorySpecificBenefits(user, l);
 
             _context.Loan.Add(l);
             await _context.SaveChangesAsync();

@@ -12,8 +12,8 @@ using VVS_biblioteka;
 namespace VVS_biblioteka.Migrations
 {
     [DbContext(typeof(LibDbContext))]
-    [Migration("20231211124729_database")]
-    partial class database
+    [Migration("20231211162408_db")]
+    partial class db
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,9 +36,6 @@ namespace VVS_biblioteka.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Loaned")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -65,6 +62,12 @@ namespace VVS_biblioteka.Migrations
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Days")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");

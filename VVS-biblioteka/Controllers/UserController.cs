@@ -151,28 +151,27 @@ namespace VVS_biblioteka.Controllers
                     string tip = "";
                     switch (user.UserType)
                     {
-                        case Models.UserType.Student:
-                            tip="Student";
+                        case UserType.Student:
+                            tip = "Student";
                             ;
                             break;
-                        case Models.UserType.Ucenik:
-                            tip="Ucenik";
+                        case UserType.Ucenik:
+                            tip = "Ucenik";
                             ;
                             break;
-                        case Models.UserType.Penzioner:
-                            tip="Penzioner";
+                        case UserType.Penzioner:
+                            tip = "Penzioner";
                             ;
                             break;
-                        case Models.UserType.Dijete:
-                            tip="Dijete";
+                        case UserType.Dijete:
+                            tip = "Dijete";
                             ;
                             break;
                         default:
                             tip = "Nepoznato";
                             break;
-
-
                     }
+
                     return Ok(new
                     {
                         UserId = user.Id,
@@ -181,34 +180,11 @@ namespace VVS_biblioteka.Controllers
                         user.Email,
                         UserType = tip
                     });
-
                 }
             }
 
             throw new HttpRequestException("User not found");
         }
-
-        private decimal ApplyDiscount(decimal price, User user)
-        {
-
-            if (user.UserType == UserType.Student)
-            {
-                return price * (decimal)0.9;
-            }
-            else if (user.UserType == UserType.Ucenik)
-            {
-                return price * (decimal)0.8;
-            }
-            else if (user.UserType == UserType.Penzioner || user.UserType == UserType.Dijete)
-            {
-                return price * (decimal)0.95;
-            }
-            else
-            {
-                return price;
-            }
-        }
-
 
         [HttpGet]
         [Route("search")]
