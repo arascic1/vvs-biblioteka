@@ -141,6 +141,19 @@ namespace VVS_biblioteka.Controllers
             return Ok("You loaned a book successfully!");
         }
 
+        [HttpGet]
+        [Route("searchBooks")]
+        public IActionResult SearchBooks(string? title, string? author)
+        {
+            var books = _context.Book
+                .Where(b =>
+                    (string.IsNullOrEmpty(title) || b.Title.Contains(title)) &&
+                    (string.IsNullOrEmpty(author) || b.Author.Contains(author)))
+                .ToList();
+
+            return Ok(books);
+        }
+
         [HttpDelete]
         [Route("/{getBookBack}")]
         public async Task<IActionResult> GetBookBack(GetBookBackRequest request)
