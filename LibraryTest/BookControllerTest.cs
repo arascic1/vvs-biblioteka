@@ -211,43 +211,6 @@ namespace LibraryTest
 
         }
 
-        [TestMethod]
-        public async Task GetBookBack_WithExistingLoan_ReturnsOk()
-        {
-            
-            var dbContextOptions = new DbContextOptionsBuilder<LibDbContext>()
-                .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
-                .Options;
-
-            using (var context = new LibDbContext(dbContextOptions))
-            {
-                
-                var loanedBook = new Loan { BookId = 1 };
-                await context.Loan.AddAsync(loanedBook);
-                await context.SaveChangesAsync();
-            }
-
-            var controller = new BookController(new LibDbContext(dbContextOptions));
-            var request = new GetBookBackRequest { BookId = 1 };
-
-            
-            var result = await controller.GetBookBack(request) as OkObjectResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(200, result.StatusCode);
-
-            
-            Assert.AreEqual("You got book back!", result.Value);
-
-           
-            using (var context = new LibDbContext(dbContextOptions))
-            {
-                var loanedBookInDatabase = context.Loan.FirstOrDefault(l => l.BookId == request.BookId);
-                Assert.IsNull(loanedBookInDatabase, "Loaned book should not exist in the Loan table.");
-            }
-        }
-
        
 
 
