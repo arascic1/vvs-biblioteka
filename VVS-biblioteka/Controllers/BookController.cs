@@ -105,9 +105,7 @@ namespace VVS_biblioteka.Controllers
             return baseFee - (baseFee * discountPercentage / 100);
         }
 
-        [HttpPost]
-        [Route("/{loanBook}")]
-        public async Task<IActionResult> LoanBook(LoanRequest request)
+        public async Task<LoanBookResult> LoanBook(LoanRequest request)
         {
             Book book = _context.Book.FirstOrDefault(b => b.Id == request.BookId);
 
@@ -115,7 +113,7 @@ namespace VVS_biblioteka.Controllers
 
             if (isBookLoaned)
             {
-                throw new ArgumentException("Book is already loaned!");
+                return new LoanBookResult { Success = false, Message = "Book is already loaned!" };
             }
 
             Loan loan = _context.Loan.FirstOrDefault(l => l.UserId == request.UserId);
@@ -124,7 +122,7 @@ namespace VVS_biblioteka.Controllers
 
             if (loan != null)
             {
-                throw new ArgumentException("You already loaned book!");
+                return new LoanBookResult { Success = false, Message = "You already loaned book!" };
             }
 
             Loan l = new()
@@ -135,11 +133,11 @@ namespace VVS_biblioteka.Controllers
                 Price = book.price,
             };
 
-            ApplyCategorySpecificBenefits(user, l);
+
 
             _context.Loan.Add(l);
             await _context.SaveChangesAsync();
-            return Ok("You loaned a book successfully!");
+            return new LoanBookResult { Success = true, Message = "Ok" };
         }
 
         [HttpGet]
@@ -157,18 +155,20 @@ namespace VVS_biblioteka.Controllers
 
         [HttpDelete]
         [Route("/{getBookBack}")]
-        public async Task<IActionResult> GetBookBack(GetBookBackRequest request)
+        public async Task<GetBookBackResult> GetBookBack(GetBookBackRequest request)
         {
-            Loan l=_context.Loan.FirstOrDefault(l => l.BookId == request.BookId);
+            Loan l = _context.Loan.FirstOrDefault(l => l.BookId == request.BookId);
             if (l == null)
             {
-                throw new ArgumentException("Book with that id is not loaned!");
+                return new GetBookBackResult { Success = false, Message = "Book with that id is not loaned!" };
+
             }
             _context.Loan.Remove(l);
 
             await _context.SaveChangesAsync();
-            return Ok("You got book back!");
+            return new GetBookBackResult { Success = true, Message = "You got book back!" };
+
         }
-        
+
     }
 }
