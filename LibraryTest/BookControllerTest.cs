@@ -152,7 +152,106 @@ namespace LibraryTest
 
             Assert.AreEqual("Book with ID 999 not found.", result.Value);
         }
-    
+       
+
+        [TestMethod]
+        public async Task AddBook_ReturnsNotOk()
+        {
+            // Arrange
+            var dbContextOptions = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
+                .Options;
+
+
+
+            var controller = new BookController(new LibDbContext(dbContextOptions));
+
+            var newBook = new Book { Id = 2, Title = "Dervis i smrt", Author="Mesa Selimovic", Description="opis" };
+
+            // Act
+            var result = await controller.AddBook(newBook) as OkObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+
+            // Očekujemo poruku "Book added successfully!"
+            Assert.AreEqual("Book added successfully!", result.Value);
+        }
+        [TestMethod]
+        public async Task SearchBook_IsFound()
+        {
+            var dbContextOptions = new DbContextOptionsBuilder<LibDbContext>()
+               .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
+               .Options;
+            var controller = new BookController(new LibDbContext(dbContextOptions));
+            using (var context = new LibDbContext(dbContextOptions))
+            {
+                var booksToAdd = new List<Book>
+            {
+                new Book { Id = 4, Title = "Book1", Author = "Author1", Description="First Book" },
+               
+            };
+                context.Book.AddRange(booksToAdd);
+                context.SaveChanges();
+            }
+
+ 
+
+            var result = controller.SearchBooks(null, null) as OkObjectResult;
+
+           
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+
+            var books = result.Value as List<Book>;
+            Assert.IsNotNull(books);
+            Assert.AreEqual(3, books.Count);
+
+        }
+
+        [TestMethod]
+        public async Task GetBookBack_WithExistingLoan_ReturnsOk()
+        {
+            
+            var dbContextOptions = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
+                .Options;
+
+            using (var context = new LibDbContext(dbContextOptions))
+            {
+                
+                var loanedBook = new Loan { BookId = 1 };
+                await context.Loan.AddAsync(loanedBook);
+                await context.SaveChangesAsync();
+            }
+
+            var controller = new BookController(new LibDbContext(dbContextOptions));
+            var request = new GetBookBackRequest { BookId = 1 };
+
+            
+            var result = await controller.GetBookBack(request) as OkObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+
+            
+            Assert.AreEqual("You got book back!", result.Value);
+
+           
+            using (var context = new LibDbContext(dbContextOptions))
+            {
+                var loanedBookInDatabase = context.Loan.FirstOrDefault(l => l.BookId == request.BookId);
+                Assert.IsNull(loanedBookInDatabase, "Loaned book should not exist in the Loan table.");
+            }
+        }
+
+       
+
+
+
+
 
 
 
