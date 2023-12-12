@@ -102,5 +102,86 @@ namespace LibraryTest
             Assert.IsNotNull(result);
         }
 
+        [TestMethod]
+        public async Task LoanTest1()
+        {
+
+            LoanRequest request = new LoanRequest
+            {
+                BookId = 2,
+                UserId = 1
+            };
+
+            var result = await bookController.LoanBook(request);
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Success);
+
+        }
+
+        [TestMethod]
+        public async Task LoanTest2()
+        {
+            LoanRequest request = new LoanRequest
+            {
+                BookId = 2,
+                UserId = 1
+            };
+            bookController.LoanBook(request);
+            var result = await bookController.LoanBook(request);
+            Assert.AreEqual(result.Message, "Book is already loaned!");
+
+        }
+
+        [TestMethod]
+        public async Task LoanTest3()
+        {
+            LoanRequest request = new LoanRequest
+            {
+                BookId = 2,
+                UserId = 1
+            };
+            LoanRequest request2 = new LoanRequest
+            {
+                BookId = 3,
+                UserId = 1
+            };
+            bookController.LoanBook(request);
+            var result = await bookController.LoanBook(request2);
+            Assert.AreEqual(result.Message, "You already loaned book!");
+
+        }
+
+        [TestMethod]
+        public async Task GetBookBackTest1()
+        {
+            LoanRequest request = new LoanRequest
+            {
+                BookId = 2,
+                UserId = 1
+            };
+            bookController.LoanBook(request);
+            GetBookBackRequest request2 = new GetBookBackRequest { BookId = 2 };
+            var response = await bookController.GetBookBack(request2);
+            Assert.IsNotNull(response);
+            Assert.IsTrue(response.Success);
+
+
+        }
+
+        [TestMethod]
+        public async Task GetBookBackTest2()
+        {
+
+            GetBookBackRequest request2 = new GetBookBackRequest { BookId = 2 };
+            var response = await bookController.GetBookBack(request2);
+            Assert.IsNotNull(response);
+            Assert.IsFalse(response.Success);
+            Assert.AreEqual(response.Message, "Book with that id is not loaned!");
+
+        }
+
+
+
+
     }
 }
