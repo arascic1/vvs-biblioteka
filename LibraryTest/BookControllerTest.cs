@@ -123,7 +123,36 @@ namespace LibraryTest
             Assert.AreEqual($"Book with ID 1 deleted successfully.", result.Value);
         }
 
+        [TestMethod]
+        public async Task DeleteBook_WithExistingBook_ReturnsNotOk()
+        {
+            // Arrange
+            var dbContextOptions = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
+                .Options;
 
+
+
+            using (var context = new LibDbContext(dbContextOptions))
+            {
+                var bookToAdd = new Book { Id = 3, Title = "meditacije", Author="Julia", 
+                Description="Veri nice"};
+                await context.Book.AddAsync(bookToAdd);
+                await context.SaveChangesAsync();
+            }
+
+            var controller = new BookController(new LibDbContext(dbContextOptions));
+
+            // Act
+            var result = await controller.DeleteBook(999) as NotFoundObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(404, result.StatusCode);
+
+            Assert.AreEqual("Book with ID 999 not found.", result.Value);
+        }
+    
 
 
 
