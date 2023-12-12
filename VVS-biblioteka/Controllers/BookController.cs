@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 using VVS_biblioteka.Models;
 
 namespace VVS_biblioteka.Controllers
@@ -75,8 +76,8 @@ namespace VVS_biblioteka.Controllers
 
             return Ok($"Book with ID {id} deleted successfully.");
         }
-
-        private void ApplyCategorySpecificBenefits(User user, Loan loan)
+        [NonAction]
+        public void ApplyCategorySpecificBenefits(User user, Loan loan)
         {
             switch (user.UserType)
             {
@@ -168,5 +169,6 @@ namespace VVS_biblioteka.Controllers
             await _context.SaveChangesAsync();
             return Ok("You got book back!");
         }
+        
     }
 }
