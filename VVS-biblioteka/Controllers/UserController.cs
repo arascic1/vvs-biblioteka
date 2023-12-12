@@ -1,22 +1,19 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient.Server;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using VVS_biblioteka.Models;
-using static VVS_biblioteka.Models.User;
 
 namespace VVS_biblioteka.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UserController : ControllerBase
+    public class UserController : ControllerBase, IUserController
     {
         private readonly LibDbContext _context;
+        public UserController() { }
 
         public UserController(LibDbContext context)
         {
@@ -229,19 +226,15 @@ namespace VVS_biblioteka.Controllers
             {
                 for (int j = 0; j < users.Count - i - 1; j++)
                 {
-                    // Compare last names
                     if (string.Compare(users[j].LastName, users[j + 1].LastName, StringComparison.OrdinalIgnoreCase) > 0)
                     {
-                        // Swap users
                         var temp = users[j];
                         users[j] = users[j + 1];
                         users[j + 1] = temp;
                     }
-                    // If last names are equal, compare first names
                     else if (string.Compare(users[j].LastName, users[j + 1].LastName, StringComparison.OrdinalIgnoreCase) == 0 &&
                              string.Compare(users[j].FirstName, users[j + 1].FirstName, StringComparison.OrdinalIgnoreCase) > 0)
                     {
-                        // Swap users
                         var temp = users[j];
                         users[j] = users[j + 1];
                         users[j + 1] = temp;
@@ -269,7 +262,6 @@ namespace VVS_biblioteka.Controllers
 
         private bool IsValidName(string name)
         {
-            // Validate that the name contains only letters
             return !string.IsNullOrWhiteSpace(name) && name.All(char.IsLetter);
         }
         private bool IsValidType(UserType userType)
@@ -279,10 +271,14 @@ namespace VVS_biblioteka.Controllers
 
         private bool IsValidEmailDomain(string email)
         {
-            // Validate email domain
             string[] allowedDomains = { "gmail.com", "etf.unsa.ba", "yahoo.com", "outlook.com" };
             string domain = email.Split('@').LastOrDefault()?.ToLower();
             return domain != null && allowedDomains.Contains(domain);
         }
+    }
+
+    public interface IUserController
+    {
+        IActionResult GetLoanedBooks(int userId);
     }
 }

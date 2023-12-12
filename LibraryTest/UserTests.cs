@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Moq;
-using Moq.EntityFrameworkCore;
-using System.Diagnostics;
+
 using VVS_biblioteka;
 using VVS_biblioteka.Controllers;
 using VVS_biblioteka.Models;
@@ -20,7 +18,6 @@ namespace LibraryTest
 
             using (var context = new LibDbContext(_options))
             {
-                // Clear all users from the table
                 context.User.RemoveRange(context.User);
                 context.SaveChanges();
             }
@@ -51,10 +48,8 @@ namespace LibraryTest
             {
                 UserController controller = new UserController(context);
 
-                // Act
                 IEnumerable<User> result = controller.Index();
 
-                // Assert
                 Assert.IsNotNull(result);
                 CollectionAssert.AreEquivalent(testData, result.ToList());
             }

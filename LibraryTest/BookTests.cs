@@ -103,37 +103,36 @@ namespace LibraryTest
         }
 
         [TestMethod]
-        public async Task LoanTest1()
+        public void LoanTest1()
         {
-
             LoanRequest request = new LoanRequest
             {
                 BookId = 2,
                 UserId = 1
             };
 
-            var result = await bookController.LoanBook(request);
+            var result = bookController.LoanBook(request).GetAwaiter().GetResult();
+
             Assert.IsNotNull(result);
             Assert.IsTrue(result.Success);
-
         }
 
         [TestMethod]
-        public async Task LoanTest2()
+        public void LoanTest2()
         {
             LoanRequest request = new LoanRequest
             {
                 BookId = 2,
                 UserId = 1
             };
-            bookController.LoanBook(request);
-            var result = await bookController.LoanBook(request);
-            Assert.AreEqual(result.Message, "Book is already loaned!");
 
+            bookController.LoanBook(request);
+            var result = bookController.LoanBook(request).GetAwaiter().GetResult();
+            Assert.AreEqual(result.Message, "Book is already loaned!");
         }
 
         [TestMethod]
-        public async Task LoanTest3()
+        public void LoanTest3()
         {
             LoanRequest request = new LoanRequest
             {
@@ -146,9 +145,8 @@ namespace LibraryTest
                 UserId = 1
             };
             bookController.LoanBook(request);
-            var result = await bookController.LoanBook(request2);
+            var result = bookController.LoanBook(request2).GetAwaiter().GetResult();
             Assert.AreEqual(result.Message, "You already loaned book!");
-
         }
 
         [TestMethod]
@@ -164,8 +162,6 @@ namespace LibraryTest
             var response = await bookController.GetBookBack(request2);
             Assert.IsNotNull(response);
             Assert.IsTrue(response.Success);
-
-
         }
 
         [TestMethod]
