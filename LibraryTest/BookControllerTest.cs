@@ -20,6 +20,7 @@ namespace LibraryTest
     [TestClass]
     public class BookControllerTest
     {
+       
         [TestMethod]
         public void ApplyCategorySpecificBenefits_StudentsCategory_ShouldSetDiscountAndDays()
         {
