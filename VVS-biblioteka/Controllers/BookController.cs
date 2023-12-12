@@ -105,6 +105,7 @@ namespace VVS_biblioteka.Controllers
             return baseFee - (baseFee * discountPercentage / 100);
         }
 
+        [HttpPost]
         public async Task<LoanBookResult> LoanBook(LoanRequest request)
         {
             Book book = _context.Book.FirstOrDefault(b => b.Id == request.BookId);

@@ -28,10 +28,8 @@ namespace LibraryTest
             var loan = new Loan { Price = 100, Days = 0 }; 
 
             var bookController = new BookController(null); 
-
             
             bookController.ApplyCategorySpecificBenefits(user, loan);
-
            
             Assert.AreEqual(70, loan.Price); // CalculateDiscountedFee(100, 30) returns 70
             Assert.AreEqual(60, loan.Days);
@@ -231,14 +229,13 @@ namespace LibraryTest
             var request = new GetBookBackRequest { BookId = 1 };
 
             
-            var result = await controller.GetBookBack(request) as OkObjectResult;
+            var result = await controller.GetBookBack(request);
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(200, result.StatusCode);
-
+            Assert.AreEqual(true, result.Success);
             
-            Assert.AreEqual("You got book back!", result.Value);
+            Assert.AreEqual("You got book back!", result.Message);
 
            
             using (var context = new LibDbContext(dbContextOptions))

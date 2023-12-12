@@ -11,6 +11,21 @@ namespace LibraryTest
     [TestClass]
     public class UserTests
     {
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            var _options = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .Options;
+
+            using (var context = new LibDbContext(_options))
+            {
+                // Clear all users from the table
+                context.User.RemoveRange(context.User);
+                context.SaveChanges();
+            }
+        }
+
         [TestMethod]
         public void Index_ShouldReturnUsersFromInMemoryDbContext()
         {
