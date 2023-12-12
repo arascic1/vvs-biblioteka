@@ -4,6 +4,7 @@ using VVS_biblioteka.Models;
 using Moq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace LibraryTest
 {
@@ -69,7 +70,36 @@ namespace LibraryTest
 
             Assert.IsNotNull(result);
             Assert.AreEqual("Book with the same Id already exists.", result.Value);
+        }
 
+        [TestMethod]
+        public void GetInvalidBookDetailsTest()
+        {
+            int id = 1000;
+
+            var result = bookController.GetBookDetails(id) as NotFoundObjectResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual($"Book with ID {id} not found.", result.Value);
+        }
+
+        [TestMethod]
+        public async Task GetValidBookDetailsTest()
+        {
+            var validBook = new Book
+            {
+                Id = 3,
+                Title = "Title 1",
+                Author = "Author 1",
+                Description = "Description 1",
+                price = 1
+            };
+
+            var add = await bookController.AddBook(validBook) as OkObjectResult;
+            var result = bookController.GetBookDetails(validBook.Id) as OkObjectResult;
+
+            Assert.IsInstanceOfType(result.Value, typeof(object));
+            Assert.IsNotNull(result);
         }
     }
 }
