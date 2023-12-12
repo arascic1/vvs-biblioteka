@@ -92,5 +92,22 @@ namespace LibraryTest
             Assert.AreEqual("Invalid email domain. Allowed domains are gmail.com, etf.unsa.ba, yahoo.com, or outlook.com.", result.Message);
         }
 
+        [TestMethod]
+        public async Task CreateUserInvalidTypeTest()
+        {
+            var invalidRequest = new CreateUserRequest
+            {
+                FirstName = "Mujo",
+                LastName = "Mujić",
+                Email = "mujo.mujic@gmail.com",
+                Password = "ValidPassword123",
+                UserType = (UserType)100
+            };
+
+            var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() => userController.Create(invalidRequest));
+
+            Assert.AreEqual("Invalid type of user!", result.Message);
+        }
+
     }
 }
