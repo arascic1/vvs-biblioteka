@@ -2,10 +2,31 @@
 
 namespace VVS_biblioteka.Controllers
 {
+    /// <summary>
+    /// Interface for handling book loan operations.
+    /// </summary>
     public interface ILoanService
     {
+        /// <summary>
+        /// Loans a book to a user.
+        /// </summary>
+        /// <param name="request">The loan request.</param>
+        /// <param name="context">The database context.</param>
         void LoanBook(LoanRequest request, LibDbContext context);
+
+        /// <summary>
+        /// Returns a book previously loaned by a user.
+        /// </summary>
+        /// <param name="request">The request to get the book back.</param>
+        /// <param name="context">The database context.</param>
         void ReturnBook(GetBookBackRequest request, LibDbContext context);
+
+        /// <summary>
+        /// Gets loan details for a specific book.
+        /// </summary>
+        /// <param name="bookId">The ID of the book.</param>
+        /// <param name="context">The database context.</param>
+        /// <returns>An object containing loan and user details.</returns>
         object GetBookLoanDetails(int bookId, LibDbContext context);
     }
 
@@ -70,6 +91,11 @@ namespace VVS_biblioteka.Controllers
             };
         }
 
+        /// <summary>
+        /// Applies category-specific benefits to the loan based on user type.
+        /// </summary>
+        /// <param name="user">The user for whom the book is loaned.</param>
+        /// <param name="loan">The loan object to which benefits are applied.</param>
         private void ApplyCategorySpecificBenefits(User user, Loan loan)
         {
             switch (user.UserType)
@@ -93,6 +119,12 @@ namespace VVS_biblioteka.Controllers
             }
         }
 
+        /// <summary>
+        /// Calculates the discounted fee based on a given percentage.
+        /// </summary>
+        /// <param name="baseFee">The base fee to apply the discount to.</param>
+        /// <param name="discountPercentage">The percentage by which to discount the fee.</param>
+        /// <returns>The discounted fee.</returns>
         private decimal CalculateDiscountedFee(decimal baseFee, int discountPercentage)
         {
             return baseFee - (baseFee * discountPercentage / 100);

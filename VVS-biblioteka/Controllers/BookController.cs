@@ -6,6 +6,9 @@ using VVS_biblioteka.Models;
 
 namespace VVS_biblioteka.Controllers
 {
+    /// <summary>
+    /// Controller for managing book-related operations.
+    /// </summary>
     [ApiController]
     [Route("api/books")]
     public class BookController : ControllerBase
@@ -13,48 +16,77 @@ namespace VVS_biblioteka.Controllers
         private readonly LibDbContext _context;
         private readonly ILoanService _loanService;
 
+        /// <summary>
+        /// Initializes a new instance of the BookController class.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="loanService">The loan service.</param>
         public BookController(LibDbContext context, ILoanService loanService)
         {
             _context = context;
             _loanService = loanService;
         }
 
+        /// <summary>
+        /// Adds a new book to the library.
+        /// </summary>
+        /// <param name="book">The book to add.</param>
+        /// <returns>An action result indicating success or failure.</returns>
         [HttpPost("add")]
         public async Task<IActionResult> AddBook(Book book)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
-            if (_context.Book.Any(b => b.Id == book.Id))
+                if (_context.Book.Any(b => b.Id == book.Id))
+                {
+                    return BadRequest("Book with the same Id already exists.");
+                }
+
+                _context.Book.Add(book);
+                await _context.SaveChangesAsync();
+
+                return Ok("Book added successfully!");
+            }
+            catch (Exception ex)
             {
-                return BadRequest("Book with the same Id already exists.");
+                return StatusCode(500, "An error occurred while processing the request.");
             }
-
-            _context.Book.Add(book);
-            await _context.SaveChangesAsync();
-
-            return Ok("Book added successfully!");
         }
 
+        /// <summary>
+        /// Gets details for a specific book.
+        /// </summary>
+        /// <param name="bookId">The ID of the book.</param>
+        /// <returns>An action result containing book details.</returns>
         [HttpGet("{bookId}")]
         public IActionResult GetBookDetails(int bookId)
         {
-            var book = _context.Book.FirstOrDefault(b => b.Id == bookId);
-
-            if (book == null)
+            try
             {
-                return NotFound($"Book with ID {bookId} not found.");
+                var book = _context.Book.FirstOrDefault(b => b.Id == bookId);
+
+                if (book == null)
+                {
+                    return NotFound($"Book with ID {bookId} not found.");
+                }
+
+                var bookDetails = new
+                {
+                    Book = book,
+                    LoanDetails = _loanService.GetBookLoanDetails(bookId, _context)
+                };
+
+                return Ok(bookDetails);
             }
-
-            var bookDetails = new
+            catch (Exception ex)
             {
-                Book = book,
-                LoanDetails = _loanService.GetBookLoanDetails(bookId, _context)
-            };
-
-            return Ok(bookDetails);
+                return StatusCode(500, "An error occurred while processing the request.");
+            }
         }
 
         [HttpDelete("{id}")]
@@ -73,12 +105,27 @@ namespace VVS_biblioteka.Controllers
             return Ok($"Book with ID {id} deleted successfully.");
         }
 
+        /// <summary>
+        /// Loans a book to a user.
+        /// </summary>
+        /// <param name="request">The loan request.</param>
+        /// <returns>An action result indicating success or failure.</returns>
         [HttpPost("loan")]
         public async Task<IActionResult> LoanBook(LoanRequest request)
         {
-            _loanService.LoanBook(request, _context);
-
-            return Ok("You loaned a book successfully!");
+            try
+            {
+                _loanService.LoanBook(request, _context);
+                return Ok("You loaned a book successfully!");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while processing the request.");
+            }
         }
 
         [HttpGet("search")]
@@ -93,12 +140,27 @@ namespace VVS_biblioteka.Controllers
             return Ok(books);
         }
 
+        /// <summary>
+        /// Returns a book previously loaned by a user.
+        /// </summary>
+        /// <param name="request">The request to get the book back.</param>
+        /// <returns>An action result indicating success or failure.</returns>
         [HttpDelete("return")]
         public async Task<IActionResult> GetBookBack(GetBookBackRequest request)
         {
-            _loanService.ReturnBook(request, _context);
-
-            return Ok("You got the book back!");
+            try
+            {
+                _loanService.ReturnBook(request, _context);
+                return Ok("You got the book back!");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while processing the request.");
+            }
         }
     }
 }
