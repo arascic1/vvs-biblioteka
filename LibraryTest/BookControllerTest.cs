@@ -1,18 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VVS_biblioteka;
 using VVS_biblioteka.Controllers;
 using VVS_biblioteka.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Routing;
-using System.Diagnostics.CodeAnalysis;
-
-
 
 namespace LibraryTest
 {
@@ -177,12 +167,14 @@ namespace LibraryTest
             // Očekujemo poruku "Book added successfully!"
             Assert.AreEqual("Book added successfully!", result.Value);
         }
+
         [TestMethod]
         public async Task SearchBook_IsFound()
         {
             var dbContextOptions = new DbContextOptionsBuilder<LibDbContext>()
                .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
                .Options;
+
             var controller = new BookController(new LibDbContext(dbContextOptions));
             using (var context = new LibDbContext(dbContextOptions))
             {
@@ -195,10 +187,7 @@ namespace LibraryTest
                 context.SaveChanges();
             }
 
- 
-
             var result = controller.SearchBooks(null, null) as OkObjectResult;
-
            
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
@@ -206,7 +195,6 @@ namespace LibraryTest
             var books = result.Value as List<Book>;
             Assert.IsNotNull(books);
             Assert.AreEqual(3, books.Count);
-
         }
 
         [TestMethod]
