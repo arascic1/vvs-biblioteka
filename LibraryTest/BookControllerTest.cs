@@ -9,6 +9,8 @@ using VVS_biblioteka;
 using VVS_biblioteka.Controllers;
 using VVS_biblioteka.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Routing;
+using System.Diagnostics.CodeAnalysis;
 
 
 
@@ -86,6 +88,42 @@ namespace LibraryTest
             Assert.AreEqual(140, loan.Price); 
             Assert.AreEqual(60, loan.Days);
         }
+
+
+
+
+        [TestMethod]
+        public async Task DeleteBook_WithExistingBook_ReturnsOk()
+        {
+            // Arrange
+            var dbContextOptions = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
+                .Options;
+
+            using (var context = new LibDbContext(dbContextOptions))
+            {
+                var bookToAdd = new Book { Id = 1, Title = "Test Book" ,
+                    Author = "Author 1",
+                    Description = "Description 1"
+                };
+                await context.Book.AddAsync(bookToAdd);
+                await context.SaveChangesAsync();
+            }
+
+            var controller = new BookController(new LibDbContext(dbContextOptions));
+
+            
+            var result = await controller.DeleteBook(1) as OkObjectResult;
+
+           
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+
+           
+            Assert.AreEqual($"Book with ID 1 deleted successfully.", result.Value);
+        }
+
+
 
 
 
