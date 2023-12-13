@@ -4,6 +4,7 @@ using VVS_biblioteka.Controllers;
 using VVS_biblioteka;
 using VVS_biblioteka.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LibraryTest
 {
@@ -310,6 +311,32 @@ namespace LibraryTest
             var user = await userController.Details(1);
             Assert.AreEqual(200, result.StatusCode);
             Assert.AreEqual(DateTime.Now.AddMonths(14).Date, user.ExpirationDate.Date);
+        }
+
+        [TestMethod]
+        public async Task InvalidLoginTest()
+        {
+            var invalidLoginRequest = new LoginRequest
+            {
+                Email = "test.user@etf.unsa.ba",
+                Password = "notvalidpassword"
+            };
+
+            var validRequest = new CreateUserRequest
+            {
+                FirstName = "Test",
+                LastName = "User",
+                Email = "test.user@etf.unsa.ba",
+                Password = "validpassword",
+                UserType = UserType.Student,
+            };
+
+            var create = await userController.Create(validRequest) as OkResult;
+            Assert.IsNotNull(create);
+
+            var result = await Assert.ThrowsExceptionAsync<SecurityTokenException>(() => userController.Login(invalidLoginRequest));
+
+            Assert.AreEqual("Invalid email or password", result.Message); ;
         }
 
         [TestCleanup]
