@@ -73,6 +73,15 @@ namespace LibraryTest
         }
 
         [TestMethod]
+        public async Task AddBookInvalidModelStateTest()
+        {
+            var invalidBook = new Book();
+            bookController.ModelState.AddModelError("Title", "Title is required");
+            var result = await bookController.AddBook(invalidBook) as BadRequestObjectResult;
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
         public void GetInvalidBookDetailsTest()
         {
             int id = 1000;
