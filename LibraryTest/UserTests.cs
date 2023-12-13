@@ -54,6 +54,60 @@ namespace LibraryTest
                 CollectionAssert.AreEquivalent(testData, result.ToList());
             }
         }
+
+        [TestMethod]
+        public void EqualUsersTest()
+        {
+            var user1 = new User
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com",
+                PasswordHash = "hashedpassword",
+                UserType = UserType.Student
+            };
+
+            var user2 = new User
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com",
+                PasswordHash = "hashedpassword",
+                UserType = UserType.Student
+            };
+
+            Assert.IsTrue(user1.Equals(user2));
+            Assert.IsTrue(user2.Equals(user1));
+        }
+
+        [TestMethod]
+        public void NotEqualUsersTest()
+        {
+            var user1 = new User
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com",
+                PasswordHash = "hashedpassword",
+                UserType = UserType.Ucenik
+            };
+
+            var user2 = new User
+            {
+                Id = 2, 
+                FirstName = "Jane",
+                LastName = "Smith",
+                Email = "jane.smith@example.com",
+                PasswordHash = "differenthashedpassword",
+                UserType = UserType.Student
+            };
+
+            Assert.IsFalse(user1.Equals(user2));
+            Assert.IsFalse(user2.Equals(user1));
+        }
     }
 
    
