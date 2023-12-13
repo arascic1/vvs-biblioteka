@@ -187,11 +187,10 @@ namespace VVS_biblioteka.Controllers
         [Route("search")]
         public IActionResult SearchUsers([FromQuery] string keyword)
         {
+            if (string.IsNullOrEmpty(keyword))
+                throw new ArgumentException("Search keyword cannot be empty.");
             try
             {
-                if (string.IsNullOrEmpty(keyword))
-                    throw new ArgumentException("Search keyword cannot be empty.");
-
                 var users = _context.User
                     .Where(u => EF.Functions.Like(u.FirstName, $"%{keyword}%") || EF.Functions.Like(u.LastName, $"%{keyword}%"))
                     .ToList();

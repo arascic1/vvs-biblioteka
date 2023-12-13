@@ -339,6 +339,43 @@ namespace LibraryTest
             Assert.AreEqual("Invalid email or password", result.Message); ;
         }
 
+        [TestMethod]
+        public async Task SearchUsersTest()
+        {
+            var keyword = "John";
+            var user1 = new CreateUserRequest
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "test.user@etf.unsa.ba",
+                Password = "validpassword",
+                UserType = UserType.Student
+            };
+            var user2 = new CreateUserRequest
+            {
+                FirstName = "Johnny",
+                LastName = "Doe",
+                Email = "test.user2@etf.unsa.ba",
+                Password = "validpassword",
+                UserType = UserType.Student,
+            };
+
+            var create1 = await userController.Create(user1) as OkResult;
+            var create2 = await userController.Create(user2) as OkResult;
+
+            var result = userController.SearchUsers(keyword) as OkObjectResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+        }
+
+        [TestMethod]
+        public void SearchUsersInvalidKeywordTest()
+        {
+            string keyword = "";
+            var result = Assert.ThrowsException<ArgumentException>(() => userController.SearchUsers(keyword));
+            Assert.AreEqual("Search keyword cannot be empty.", result.Message);
+        }
+
         [TestCleanup]
         public void CleanUp()
         {
