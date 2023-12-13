@@ -65,8 +65,8 @@ namespace VVS_biblioteka.Controllers
                     LastName = req.LastName,
                     Email = req.Email,
                     PasswordHash = HashPassword(req.Password),
-                    ExpirationDate=DateTime.Now.AddMonths(12),
-                    UserType=req.UserType
+                    ExpirationDate = DateTime.Now.AddMonths(12),
+                    UserType = req.UserType
                 };
 
 

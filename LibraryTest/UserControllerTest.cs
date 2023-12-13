@@ -250,5 +250,72 @@ namespace LibraryTest
             Assert.AreEqual("Invalid type of user!", result.Message);
         }
 
+        [TestMethod]
+        public async Task RenewMembership_ThrowsArgumentException()
+        {
+            var req = new RenewalRequest
+            {
+                UserId = 1,
+                Months = 0
+            };
+            var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() => userController.RenewMembership(req));
+            Assert.AreEqual("Number of months must be greater than 0.", result.Message);
+        }
+
+        [TestMethod]
+        public async Task RenewMembership_ThrowsHttpRequestException()
+        {
+            var user1 = new User
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                UserType = UserType.Student,
+                Email = "john.doe@example.com",
+                PasswordHash = "hashedPassword",
+                ExpirationDate = DateTime.Now.AddDays(30)
+            };
+            _dbContext.User.Add(user1);
+            _dbContext.SaveChanges();
+            var req = new RenewalRequest
+            {
+                UserId = 2,
+                Months = 2
+            };
+            var result = await Assert.ThrowsExceptionAsync<HttpRequestException>(() => userController.RenewMembership(req));
+            Assert.AreEqual("User not found.", result.Message);
+        }
+
+        [TestMethod]
+        public async Task RenewMembership_ValidRenewal()
+        {
+            var user1 = new User
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                UserType = UserType.Student,
+                Email = "john.doe@example.com",
+                PasswordHash = "hashedPassword",
+                ExpirationDate = DateTime.Now.AddMonths(12)
+            };
+            _dbContext.User.Add(user1);
+            _dbContext.SaveChanges();
+            var req = new RenewalRequest
+            {
+                UserId = 1,
+                Months = 2
+            };
+            var result = await userController.RenewMembership(req) as OkResult;
+            var user = await userController.Details(1);
+            Assert.AreEqual(200, result.StatusCode);
+            Assert.AreEqual(DateTime.Now.AddMonths(14).Date, user.ExpirationDate.Date);
+        }
+
+        [TestCleanup]
+        public void CleanUp()
+        {
+            _dbContext.Database.EnsureDeleted();
+        }
     }
 }
