@@ -108,6 +108,23 @@ namespace LibraryTest
             Assert.IsFalse(user1.Equals(user2));
             Assert.IsFalse(user2.Equals(user1));
         }
+
+        [TestMethod]
+        public void NotEqualUsersTest2()
+        {
+            var user1 = new User
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com",
+                PasswordHash = "hashedpassword",
+                UserType = UserType.Ucenik
+            };
+            var user2 = "";
+            Assert.IsFalse(user1.Equals(user2));
+
+        }
     }
 
    
