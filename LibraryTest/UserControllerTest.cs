@@ -12,6 +12,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System.Xml.Linq;
 
 namespace LibraryTest
 {
@@ -228,6 +229,25 @@ namespace LibraryTest
                 Email = "mujo.mujic@gmail.com",
                 Password = "ValidPassword123",
                 UserType = UserType.Penzioner
+            };
+
+            var result = await userController.Create(validRequest) as OkResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task CreateValidUserWithXMLTest()
+        {
+            var xmlFilePath = "C:\\Users\\38761\\Documents\\vvs-biblioteka\\LibraryTest\\testdata.xml";
+            var xmlData = XDocument.Load(xmlFilePath);
+            var validRequest = new CreateUserRequest
+            {
+                FirstName = xmlData.Element("userRequest").Element("FirstName").Value,
+                LastName = xmlData.Element("userRequest").Element("LastName").Value,
+                Email = xmlData.Element("userRequest").Element("Email").Value,
+                Password = xmlData.Element("userRequest").Element("Password").Value,
+                UserType = Enum.Parse<UserType>(xmlData.Element("userRequest").Element("UserType").Value)
             };
 
             var result = await userController.Create(validRequest) as OkResult;

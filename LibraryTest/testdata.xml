@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<userRequest>
+	<FirstName>John</FirstName>
+	<LastName>Reeves</LastName>
+	<Email>johnreeves@gmail.com</Email>
+	<Password>ValidPassword123</Password>
+	<UserType>Student</UserType>
+</userRequest>
+
