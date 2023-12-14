@@ -6,6 +6,12 @@ using VVS_biblioteka.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Http;
+using System.Linq.Expressions;
+using Newtonsoft.Json.Linq;
+using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace LibraryTest
 {
@@ -431,6 +437,165 @@ namespace LibraryTest
         }
 
         [TestMethod]
+        public void SearchUsers_ExceptionThrown_ReturnsInternalServerError()
+        {
+            var options = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "InMemoryDb")
+                .Options;
+
+            using (var context = new LibDbContext(options))
+            {
+                context.User.Add(new User
+                {
+                    Id = 1,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@example.com",
+                    UserType = UserType.Student,
+                    PasswordHash = "null"
+                });
+
+                context.SaveChanges();
+            }
+
+            var faultyContext = new LibDbContext(options)
+            {
+                User = new FaultyDbSet<User>()
+            };
+
+            var controller = new UserController(faultyContext);
+
+            var result = controller.SearchUsers("testKeyword");
+
+            Assert.IsInstanceOfType(result, typeof(ObjectResult));
+
+            var objectResult = (ObjectResult)result;
+            Assert.AreEqual(500, objectResult.StatusCode);
+
+            dynamic errorData = objectResult.Value;
+            Assert.IsNotNull(errorData);
+            Assert.IsTrue(errorData.ToString().Contains("Message = Error searching users."));
+        }
+
+        [TestMethod]
+        public void SortAlphanumerically_SortsUsersCorrectly()
+        {
+            var users = new List<User>
+            {
+                new User { Id = 1, FirstName = "John", LastName = "Doe", Email = "john.doe@example.com", UserType = UserType.Student, PasswordHash = "null" },
+                new User { Id = 2, FirstName = "Alice", LastName = "Smith", Email = "alice.smith@example.com", UserType = UserType.Student, PasswordHash = "null" },
+                new User { Id = 3, FirstName = "Bob", LastName = "Johnson", Email = "bob.johnson@example.com", UserType = UserType.Student, PasswordHash = "null" },
+                new User { Id = 4, FirstName = "Gates", LastName = "Adams", Email = "alice.adams@example.com", UserType = UserType.Student, PasswordHash = "null" },
+                new User { Id = 5, FirstName = "Alice", LastName = "Adams", Email = "another.adams@example.com", UserType = UserType.Student, PasswordHash = "null" },
+            };
+
+            var sortedUsers = UserController.SortAlphanumerically(users);
+
+            Assert.IsNotNull(sortedUsers);
+            Assert.AreEqual(5, sortedUsers.Count);
+
+            Assert.AreEqual("Adams", sortedUsers[0].LastName);
+            Assert.AreEqual("Alice", sortedUsers[0].FirstName);
+
+            Assert.AreEqual("Adams", sortedUsers[1].LastName);
+            Assert.AreEqual("Gates", sortedUsers[1].FirstName);
+
+            Assert.AreEqual("Doe", sortedUsers[2].LastName);
+            Assert.AreEqual("John", sortedUsers[2].FirstName);
+
+            Assert.AreEqual("Johnson", sortedUsers[3].LastName);
+            Assert.AreEqual("Bob", sortedUsers[3].FirstName);
+
+            Assert.AreEqual("Smith", sortedUsers[4].LastName);
+            Assert.AreEqual("Alice", sortedUsers[4].FirstName);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(HttpRequestException), "User not found")]
+        public void GetCurrentUser_UserNotFound_ThrowsHttpRequestException()
+        {
+            var options = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "InMemoryDb")
+                .Options;
+
+            using (var context = new LibDbContext(options))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                Mock<HttpContext> mockHttpContext = new Mock<HttpContext>();
+                MockHttpSession mockSession = new MockHttpSession();
+                mockSession["UserId"] = "1";
+                mockHttpContext.Setup(s => s.Session).Returns(mockSession);
+
+                var controller = new UserController(context)
+                {
+                    ControllerContext = new ControllerContext
+                    {
+                        HttpContext = mockHttpContext.Object
+                    }
+                };
+
+                var result = controller.GetCurrentUser();
+            }
+        }
+
+        [TestMethod]
+        public void GetCurrentUser_UserFound_ReturnsOkResult()
+        {
+            var userId = "1";
+            var user = new User
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com",
+                UserType = UserType.Student,
+                PasswordHash = "null"
+            };
+
+            var options = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "InMemoryDb")
+                .Options;
+
+            using (var context = new LibDbContext(options))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                context.User.Add(user);
+                context.SaveChanges();
+            }
+
+            Mock<HttpContext> mockHttpContext = new Mock<HttpContext>();
+            MockHttpSession mockSession = new MockHttpSession();
+            mockSession["UserId"] = userId;
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession);
+
+            var controller = new UserController(new LibDbContext(options))
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = mockHttpContext.Object
+                }
+            };
+
+            var result = controller.GetCurrentUser();
+
+            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = (OkObjectResult)result;
+
+            Assert.IsNotNull(okResult);
+            var model = okResult.Value.ToString();
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model.Contains("UserId = 1"));
+            Assert.IsTrue(model.Contains("FirstName = John"));
+            Assert.IsTrue(model.Contains("LastName = Doe"));
+            Assert.IsTrue(model.Contains("Email = john.doe@example.com"));
+            Assert.IsTrue(model.Contains("UserType = Student"));
+        }
+
+        [TestMethod]
         public void Logout_ClearsSession_ReturnsOk()
         {
             var authenticationController = new UserController();
@@ -557,5 +722,12 @@ namespace LibraryTest
         {
             _dbContext.Database.EnsureDeleted();
         }
+    }
+
+    public class FaultyDbSet<TEntity> : DbSet<TEntity> where TEntity : class
+    {
+        public override IEntityType EntityType => throw new NotImplementedException();
+
+        public override IQueryable<TEntity> AsQueryable() => throw new Exception("Simulated error");
     }
 }

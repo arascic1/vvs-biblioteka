@@ -135,37 +135,13 @@ namespace VVS_biblioteka.Controllers
 
                 if (user != null)
                 {
-                    string tip = "";
-                    switch (user.UserType)
-                    {
-                        case UserType.Student:
-                            tip = "Student";
-                            ;
-                            break;
-                        case UserType.Ucenik:
-                            tip = "Ucenik";
-                            ;
-                            break;
-                        case UserType.Penzioner:
-                            tip = "Penzioner";
-                            ;
-                            break;
-                        case UserType.Dijete:
-                            tip = "Dijete";
-                            ;
-                            break;
-                        default:
-                            tip = "Nepoznato";
-                            break;
-                    }
-
                     return Ok(new
                     {
                         UserId = user.Id,
                         user.FirstName,
                         user.LastName,
                         user.Email,
-                        UserType = tip
+                        user.UserType
                     });
                 }
             }
@@ -209,7 +185,8 @@ namespace VVS_biblioteka.Controllers
             return Ok();
         }
 
-        private static List<User> SortAlphanumerically(List<User> users)
+        [NonAction]
+        public static List<User> SortAlphanumerically(List<User> users)
         {
             for (int i = 0; i < users.Count - 1; i++)
             {
