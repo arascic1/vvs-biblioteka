@@ -35,14 +35,6 @@ namespace LibraryTest
         }
 
         [TestMethod]
-        public void UserControllerConstructor_Initialization()
-        {
-            var userController = new UserController();
-
-            Assert.IsNotNull(userController);
-        }
-
-        [TestMethod]
         public void GetLoanedBooks_ReturnsNotFoundForNonExistentUserId()
         {
             var nonExistentUserId = 3;
@@ -598,28 +590,35 @@ namespace LibraryTest
         [TestMethod]
         public void Logout_ClearsSession_ReturnsOk()
         {
-            var authenticationController = new UserController();
+            var options = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "InMemoryDb")
+                .Options;
 
-            var mockHttpContext = new Mock<HttpContext>();
-            mockHttpContext.Setup(h => h.Session).Returns(new Mock<ISession>().Object);
-
-            var controllerContext = new ControllerContext
+            using (var context = new LibDbContext(options))
             {
-                HttpContext = mockHttpContext.Object
-            };
+                var authenticationController = new UserController(context);
 
-            authenticationController.ControllerContext = controllerContext;
+                var mockHttpContext = new Mock<HttpContext>();
+                mockHttpContext.Setup(h => h.Session).Returns(new Mock<ISession>().Object);
 
-            var result = authenticationController.Logout();
+                var controllerContext = new ControllerContext
+                {
+                    HttpContext = mockHttpContext.Object
+                };
 
-            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var okResult = (OkObjectResult)result;
-            var value = okResult.Value as dynamic;
+                authenticationController.ControllerContext = controllerContext;
 
-            Assert.IsNotNull(value);
-            Assert.AreEqual("{ Message = Logout successful }", value.ToString());
+                var result = authenticationController.Logout();
 
-            mockHttpContext.Verify(h => h.Session.Clear(), Times.Once);
+                Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+                var okResult = (OkObjectResult)result;
+                var value = okResult.Value as dynamic;
+
+                Assert.IsNotNull(value);
+                Assert.AreEqual("{ Message = Logout successful }", value.ToString());
+
+                mockHttpContext.Verify(h => h.Session.Clear(), Times.Once);
+            }
         }
 
         [TestMethod]

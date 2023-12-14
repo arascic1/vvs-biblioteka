@@ -13,7 +13,6 @@ namespace VVS_biblioteka.Controllers
     public class UserController : ControllerBase, IUserController
     {
         private readonly LibDbContext _context;
-        public UserController() { }
 
         public UserController(LibDbContext context)
         {
