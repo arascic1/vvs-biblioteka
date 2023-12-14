@@ -40,23 +40,24 @@ namespace VVS_biblioteka.Controllers
         public IActionResult GetBookDetails(int bookId)
         {
             var book = _context.Book.FirstOrDefault(b => b.Id == bookId);
-
+            // checking if book with certain ID exist
             if (book == null)
             {
                 return NotFound($"Book with ID {bookId} not found.");
+            
             }
-
+            // Retrieve loan information associated with the book
             var loan = _context.Loan.FirstOrDefault(l => l.BookId == bookId);
-
+            // Retrieve user information associated with the loan, if a loan exists
             var user = loan != null ? _context.User.FirstOrDefault(u => u.Id == loan.UserId) : null;
-
+            // Create an anonymous object containing book details, loan details, and user details
             var bookDetails = new
             {
                 Book = book,
                 Loan = loan,
                 User = user
             };
-
+            // return searched book details
             return Ok(bookDetails);
         }
 
@@ -145,14 +146,17 @@ namespace VVS_biblioteka.Controllers
         [Route("searchBooks")]
         public IActionResult SearchBooks(string? title, string? author)
         {
-            var books = _context.Book
+            
+            // filtering books by title and author
+            var filteredBooks = _context.Book
                 .Where(b =>
                     (string.IsNullOrEmpty(title) || b.Title.Contains(title)) &&
                     (string.IsNullOrEmpty(author) || b.Author.Contains(author)))
                 .ToList();
-
-            return Ok(books);
+            // return book that fits the filter criteria
+            return Ok(filteredBooks) ;
         }
+       
 
         [HttpDelete]
         [Route("/{getBookBack}")]
