@@ -56,27 +56,21 @@ namespace VVS_biblioteka.Controllers
                 throw new ArgumentException("Invalid type of user!");
             }
 
-
-            if (ModelState.IsValid)
+            var user = new User
             {
-                var user = new User
-                {
-                    FirstName = req.FirstName,
-                    LastName = req.LastName,
-                    Email = req.Email,
-                    PasswordHash = HashPassword(req.Password),
-                    ExpirationDate = DateTime.Now.AddMonths(12),
-                    UserType = req.UserType
-                };
+                FirstName = req.FirstName,
+                LastName = req.LastName,
+                Email = req.Email,
+                PasswordHash = HashPassword(req.Password),
+                ExpirationDate = DateTime.Now.AddMonths(12),
+                UserType = req.UserType
+            };
 
 
-                _context.User.Add(user);
-                await _context.SaveChangesAsync();
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
 
-                return Ok();
-            }
-
-            return BadRequest(ModelState);
+            return Ok();
         }
 
         [HttpGet]
@@ -128,10 +122,6 @@ namespace VVS_biblioteka.Controllers
             return Ok(new { Message = "Logout successful" });
 
         }
-
-        [HttpGet]
-
-
 
         [HttpGet]
         [Route("currentuser")]
@@ -249,7 +239,8 @@ namespace VVS_biblioteka.Controllers
             return HashPassword(inputPassword) == hashedPassword;
         }
 
-        private static string HashPassword(string password)
+        [NonAction]
+        public static string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())
             {

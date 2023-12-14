@@ -5,6 +5,7 @@ using VVS_biblioteka;
 using VVS_biblioteka.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Http;
 
 namespace LibraryTest
 {
@@ -25,6 +26,59 @@ namespace LibraryTest
 
             userController = new UserController(new LibDbContext(options));
             _dbContext = new LibDbContext(options);
+        }
+
+        [TestMethod]
+        public void UserControllerConstructor_Initialization()
+        {
+            var userController = new UserController();
+
+            Assert.IsNotNull(userController);
+        }
+
+        [TestMethod]
+        public void GetLoanedBooks_ReturnsNotFoundForNonExistentUserId()
+        {
+            var nonExistentUserId = 3;
+
+            var nonExistentResult = userController.GetLoanedBooks(nonExistentUserId);
+
+            Assert.IsInstanceOfType(nonExistentResult, typeof(NotFoundObjectResult));
+
+            var notFoundResult = (NotFoundObjectResult)nonExistentResult;
+            Assert.AreEqual($"No loaned books found for user with ID {nonExistentUserId}.", notFoundResult.Value);
+        }
+
+        [TestMethod]
+        public void GetLoanedBooks_ReturnsOkWithValidUserId()
+        {
+            var validUserId = 1;
+
+            var validLoansForUser = new List<Loan>
+            {
+                new Loan { Id = 1, UserId = validUserId, BookId = 1, Date = DateTime.Now, Price = 10.99m, Days = 14 },
+                new Loan { Id = 2, UserId = validUserId, BookId = 2, Date = DateTime.Now.AddDays(-7), Price = 8.99m, Days = 7 }
+            };
+
+            var validBooks = new List<Book>
+            {
+                new Book { Id = 1, Title = "Book1", Author = "Author1", Description = "Description1", price = 19 },
+                new Book { Id = 2, Title = "Book2", Author = "Author2", Description = "Description2", price = 14 }
+            };
+
+            _dbContext.Loan.AddRange(validLoansForUser);
+            _dbContext.Book.AddRange(validBooks);
+            _dbContext.SaveChanges();
+
+            var validResult = userController.GetLoanedBooks(validUserId);
+
+            Assert.IsInstanceOfType(validResult, typeof(OkObjectResult));
+
+            var okResult = (OkObjectResult)validResult;
+            Assert.IsInstanceOfType(okResult.Value, typeof(List<Book>));
+
+            var loans = (List<Book>)okResult.Value;
+            Assert.AreEqual(2, loans.Count);
         }
 
         [TestMethod]
@@ -374,6 +428,128 @@ namespace LibraryTest
             string keyword = "";
             var result = Assert.ThrowsException<ArgumentException>(() => userController.SearchUsers(keyword));
             Assert.AreEqual("Search keyword cannot be empty.", result.Message);
+        }
+
+        [TestMethod]
+        public void Logout_ClearsSession_ReturnsOk()
+        {
+            var authenticationController = new UserController();
+
+            var mockHttpContext = new Mock<HttpContext>();
+            mockHttpContext.Setup(h => h.Session).Returns(new Mock<ISession>().Object);
+
+            var controllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
+            authenticationController.ControllerContext = controllerContext;
+
+            var result = authenticationController.Logout();
+
+            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = (OkObjectResult)result;
+            var value = okResult.Value as dynamic;
+
+            Assert.IsNotNull(value);
+            Assert.AreEqual("{ Message = Logout successful }", value.ToString());
+
+            mockHttpContext.Verify(h => h.Session.Clear(), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task Login_InvalidCredentials_UserDoesNotExist_ThrowsSecurityTokenException()
+        {
+            var dbContextOptions = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new LibDbContext(dbContextOptions);
+            var authenticationController = new UserController(context);
+
+            var loginRequest = new LoginRequest
+            {
+                Email = "test@example.com",
+                Password = "wrongpassword"
+            };
+
+            await Assert.ThrowsExceptionAsync<SecurityTokenException>(() => authenticationController.Login(loginRequest));
+        }
+
+        [TestMethod]
+        public async Task Login_InvalidCredentials_ThrowsSecurityTokenException()
+        {
+            var dbContextOptions = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new LibDbContext(dbContextOptions);
+            var authenticationController = new UserController(context);
+
+            var user = new User
+            {
+                Id = 1,
+                Email = "test@example.com",
+                FirstName = "user",
+                LastName = "test",
+                PasswordHash = UserController.HashPassword("password123")
+            };
+
+            context.User.Add(user);
+            context.SaveChanges();
+
+            var loginRequest = new LoginRequest
+            {
+                Email = "test@example.com",
+                Password = "wrongpassword"
+            };
+
+            await Assert.ThrowsExceptionAsync<SecurityTokenException>(() => authenticationController.Login(loginRequest));
+        }
+
+        [TestMethod]
+        public async Task Login_ValidCredentials_ReturnsOk()
+        {
+            var dbContextOptions = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new LibDbContext(dbContextOptions);
+            var userController = new UserController(context);
+
+            var user = new User
+            {
+                Id = 1,
+                Email = "test@example.com",
+                FirstName = "user",
+                LastName = "test",
+                PasswordHash = UserController.HashPassword("password123")
+            };
+
+            context.User.Add(user);
+            context.SaveChanges();
+
+            var mockHttpContext = new Mock<HttpContext>();
+            mockHttpContext.Setup(h => h.Session).Returns(new Mock<ISession>().Object);
+
+            var controllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
+            userController.ControllerContext = controllerContext;
+
+            var loginRequest = new LoginRequest
+            {
+                Email = "test@example.com",
+                Password = "password123"
+            };
+
+            var result = await userController.Login(loginRequest);
+
+            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = (OkObjectResult)result;
+            Assert.AreEqual("{ Message = Login successful }", ((dynamic)okResult.Value.ToString()));
         }
 
         [TestCleanup]
