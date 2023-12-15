@@ -166,6 +166,7 @@ namespace LibraryTest
                 BookId = 2,
                 UserId = 1
             };
+
             bookController.LoanBook(request);
             GetBookBackRequest request2 = new GetBookBackRequest { BookId = 2 };
             var response = await bookController.GetBookBack(request2);

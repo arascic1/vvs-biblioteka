@@ -1,0 +1,16 @@
+[
+  {
+    "FirstName": "John",
+    "LastName": "Doe",
+    "Email": "john.doe@etf.unsa.ba",
+    "Password": "ValidPassword123",
+    "UserType": "Student"
+  },
+  {
+    "FirstName": "Alice",
+    "LastName": "Smith",
+    "Email": "alice.smith@gmail.com",
+    "Password": "AnotherValidPassword",
+    "UserType": "Penzioner"
+  }
+]

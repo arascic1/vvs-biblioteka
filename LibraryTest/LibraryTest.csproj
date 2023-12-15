@@ -20,4 +20,13 @@
     <ProjectReference Include="..\VVS-biblioteka\VVS-biblioteka.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="testData.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="testdata.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

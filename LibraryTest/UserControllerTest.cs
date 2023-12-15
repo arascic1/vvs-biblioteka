@@ -6,13 +6,9 @@ using VVS_biblioteka.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Http;
-using System.Linq.Expressions;
-using Newtonsoft.Json.Linq;
-using System;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Xml.Linq;
+using Newtonsoft.Json;
 
 namespace LibraryTest
 {
@@ -112,6 +108,30 @@ namespace LibraryTest
 
             var loans = (List<Book>)okResult.Value;
             Assert.AreEqual(2, loans.Count);
+        }
+
+        [TestMethod]
+        public async Task CreateValidUserWithJSONTest()
+        {
+            var jsonFilePath = "testData.json";
+            var jsonData = File.ReadAllText(jsonFilePath);
+            var testDataList = JsonConvert.DeserializeObject<List<TestData>>(jsonData);
+
+            foreach (var testData in testDataList)
+            {
+                var validRequest = new CreateUserRequest
+                {
+                    FirstName = testData.FirstName,
+                    LastName = testData.LastName,
+                    Email = testData.Email,
+                    Password = testData.Password,
+                    UserType = Enum.Parse<UserType>(testData.UserType)
+                };
+
+                var result = await userController.Create(validRequest) as OkResult;
+                Assert.IsNotNull(result);
+                Assert.AreEqual(200, result.StatusCode);
+            }
         }
 
         [TestMethod]
@@ -239,7 +259,7 @@ namespace LibraryTest
         [TestMethod]
         public async Task CreateValidUserWithXMLTest()
         {
-            var xmlFilePath = "C:\\Users\\38761\\Documents\\vvs-biblioteka\\LibraryTest\\testdata.xml";
+            var xmlFilePath = "testdata.xml";
             var xmlData = XDocument.Load(xmlFilePath);
             var validRequest = new CreateUserRequest
             {
@@ -748,5 +768,14 @@ namespace LibraryTest
         public override IEntityType EntityType => throw new NotImplementedException();
 
         public override IQueryable<TEntity> AsQueryable() => throw new Exception("Simulated error");
+    }
+
+    public class TestData
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string UserType { get; set; }
     }
 }

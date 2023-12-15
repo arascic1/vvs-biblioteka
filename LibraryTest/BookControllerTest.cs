@@ -120,8 +120,6 @@ namespace LibraryTest
                 .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
                 .Options;
 
-
-
             using (var context = new LibDbContext(dbContextOptions))
             {
                 var bookToAdd = new Book { Id = 3, Title = "meditacije", Author="Julia", 
@@ -151,8 +149,6 @@ namespace LibraryTest
                 .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
                 .Options;
 
-
-
             var controller = new BookController(new LibDbContext(dbContextOptions));
 
             var newBook = new Book { Id = 2, Title = "Dervis i smrt", Author="Mesa Selimovic", Description="opis" };
@@ -178,11 +174,14 @@ namespace LibraryTest
             var controller = new BookController(new LibDbContext(dbContextOptions));
             using (var context = new LibDbContext(dbContextOptions))
             {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
                 var booksToAdd = new List<Book>
-            {
-                new Book { Id = 4, Title = "Book1", Author = "Author1", Description="First Book" },
-               
-            };
+                {
+                    new Book { Id = 4, Title = "Book1", Author = "Author1", Description="First Book" },
+                };
+
                 context.Book.AddRange(booksToAdd);
                 context.SaveChanges();
             }
@@ -194,7 +193,7 @@ namespace LibraryTest
 
             var books = result.Value as List<Book>;
             Assert.IsNotNull(books);
-            Assert.AreEqual(3, books.Count);
+            Assert.AreEqual(1, books.Count);
         }
 
         [TestMethod]
@@ -232,16 +231,5 @@ namespace LibraryTest
                 Assert.IsNull(loanedBookInDatabase, "Loaned book should not exist in the Loan table.");
             }
         }
-
-       
-
-
-
-
-
-
-
-
-
     }
 }
