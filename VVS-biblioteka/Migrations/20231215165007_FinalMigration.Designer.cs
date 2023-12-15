@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VVS_biblioteka;
 
@@ -11,9 +12,10 @@ using VVS_biblioteka;
 namespace VVS_biblioteka.Migrations
 {
     [DbContext(typeof(LibDbContext))]
-    partial class LibDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231215165007_FinalMigration")]
+    partial class FinalMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using VVS_biblioteka.Models;
 
@@ -10,7 +11,7 @@ namespace VVS_biblioteka.Controllers
     {
         private readonly LibDbContext _context;
 
-        public BookController(LibDbContext context) 
+        public BookController(LibDbContext context)
         {
             _context = context;
         }
@@ -131,7 +132,7 @@ namespace VVS_biblioteka.Controllers
                 BookId = request.BookId,
                 UserId = request.UserId,
                 Date = DateTime.Today,
-                Price = book.price,
+                Price = book.Price,
             };
 
 
@@ -171,5 +172,100 @@ namespace VVS_biblioteka.Controllers
 
         }
 
+        [HttpPost]
+        [Route("/addBookReview")]
+        public async Task<AddBookReviewResponse> AddBookReview(BookReview review)
+        {
+            Book book =  _context.Book.FirstOrDefault(b => b.Id == review.BookId);
+            if (book == null)
+            {
+                return new AddBookReviewResponse
+                {
+                    Success = false,
+                    Message = "Book with that Id is not found!"
+                };
+            }
+            if(review.Grade<1)
+            {
+                return new AddBookReviewResponse
+                {
+                    Success = false,
+                    Message = "Grade cannot be less than 1!"
+                };
+                
+            }
+
+            if (review.Grade > 5)
+            {
+                return new AddBookReviewResponse
+                {
+                    Success = false,
+                    Message = "Grade cannot be greater than 5!"
+                };
+            }
+
+            _context.BookReview.Add(review);
+            await _context.SaveChangesAsync();
+            return new AddBookReviewResponse
+            {
+                Success = true,
+                Message = "Ok!"
+            };
+        }
+
+        [HttpGet]
+        [Route("/getAverageGrade")]
+        public async Task<GetAverageGradeResponse> GetAverageGrade(int id)
+        {
+            var reviewList = _context.BookReview.Where(r => r.BookId == id).ToList();
+            if(reviewList.Count<1 || reviewList == null)
+            {
+                return new GetAverageGradeResponse
+                {
+                    Success = false,
+                    Message = "Book with that Id is not found!",
+                    Value = -1
+                };
+            }
+            var value = reviewList.Average(r => r.Grade);
+
+            return new GetAverageGradeResponse
+            {
+                Success = true,
+                Message = "Ok!",
+                Value = value
+            };
+        }
+
+        [HttpDelete]
+        [Route("/deleteReview")]
+        public async Task<DeleteReviewResponse> DeleteReview(int id)
+        {
+            BookReview review =await _context.BookReview.FirstOrDefaultAsync(r => r.BookReviewId == id);
+
+            if (review == null)
+            {
+                return new DeleteReviewResponse
+                {
+                    Success = false,
+                    Message = "Review with that Id is not found!"
+                };
+            }
+
+            _context.BookReview.Remove(review);
+            await _context.SaveChangesAsync();
+
+            return new DeleteReviewResponse { 
+                Success = true,
+                Message = "Ok!"
+            }; 
+        }
+
+
+
     }
 }
+        
+
+    
+

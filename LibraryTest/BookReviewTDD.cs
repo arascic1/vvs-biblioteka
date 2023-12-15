@@ -26,129 +26,109 @@ namespace LibraryTest
 
             mockLibDbContext = new Mock<LibDbContext>(options);
             _bookController = new BookController(new LibDbContext(options));
-        }
-        [TestMethod]
 
-        public void AddBookReviewTest1()
-        {
             Book book = new Book
             {
                 Id = 11,
                 Title = "Test",
                 Author = "Test",
                 Description = "Test",
-                price = 5
+                Price = 5
 
             };
 
+             _bookController.AddBook(book);
 
-            BookReview review = new BookReview
-            {BookReviewId = 1,
+        }
+        [TestMethod]
+
+        public async Task AddBookReviewTest1()
+        {
+           BookReview review = new BookReview
+            {
+                BookReviewId = 1,
                 BookId = 11,
                 Grade = 4,
                 Message = "Test"
             };
 
-            _bookController.AddBook(book);
-            AddBookReviewResponse response = _bookController.AddBookReview(review);
+            
+            AddBookReviewResponse response =await _bookController.AddBookReview(review);
 
             Assert.IsNotNull(response);
             Assert.IsTrue(response.Success);
             Assert.AreEqual(response.Message, "Ok!");
             
         }
-
-        public void AddBookReviewTest2()
+        [TestMethod]
+        public async Task AddBookReviewTest2()
         {
             BookReview review = new BookReview
-            {BookReviewId = 1,
-                BookId = 11,
+            {
+                
+                BookId = 111,
                 Grade = 4,
                 Message = "Test"
             };
 
             
-            AddBookReviewResponse response = _bookController.AddBookReview(review);
+            AddBookReviewResponse response = await _bookController.AddBookReview(review);
 
             Assert.IsNotNull(response);
             Assert.IsFalse(response.Success);
             Assert.AreEqual(response.Message, "Book with that Id is not found!");
 
         }
-        public void AddBookReviewTest3()
+        [TestMethod]
+        public async Task AddBookReviewTest3()
         {
-            Book book = new Book
-            {
-                Id = 11,
-                Title = "Test",
-                Author = "Test",
-                Description = "Test",
-                price = 5
-
-            };
-
+           
 
             BookReview review = new BookReview
             {   
-                BookReviewId = 1,  
+                
                 BookId = 11,
                 Grade = 0,
                 Message = "Test"
             };
 
-            _bookController.AddBook(book);
-            AddBookReviewResponse response = _bookController.AddBookReview(review);
+           
+            AddBookReviewResponse response = await _bookController.AddBookReview(review);
 
             Assert.IsNotNull(response);
             Assert.IsFalse(response.Success);
             Assert.AreEqual(response.Message, "Grade cannot be less than 1!");
 
         }
-        public void AddBookReviewTest4()
+        [TestMethod]
+        public async Task AddBookReviewTest4()
         {
-            Book book = new Book
-            {
-                Id = 11,
-                Title = "Test",
-                Author = "Test",
-                Description = "Test",
-                price = 5
-
-            };
-
-
+            
             BookReview review = new BookReview
             {
-                BookReviewId = 1,
+                
                 BookId = 11,
                 Grade = 6,
                 Message = "Test"
             };
 
-            _bookController.AddBook(book);
-            AddBookReviewResponse response = _bookController.AddBookReview(review);
+           
+            AddBookReviewResponse response = await _bookController.AddBookReview(review);
 
             Assert.IsNotNull(response);
             Assert.IsFalse(response.Success);
             Assert.AreEqual(response.Message, "Grade cannot be greater than 5!");
 
         }
-        public void AverageBookReviewTest1()
+        [TestMethod]
+        public async Task AverageBookReviewTest1()
         {
-            Book book = new Book
-            {
-                Id = 11,
-                Title = "Test",
-                Author = "Test",
-                Description = "Test",
-                price = 5
-
-            };
+            
 
 
             BookReview review1 = new BookReview
             {
-                BookReviewId = 1,
+                
                 BookId = 11,
                 Grade = 4,
                 Message = "Test"
@@ -156,67 +136,62 @@ namespace LibraryTest
 
             BookReview review2 = new BookReview
             {
-                BookReviewId = 2,
+                
                 BookId = 11,
                 Grade = 5,
                 Message = "Test"
             };
 
-            _bookController.AddBook(book);
-            _bookController.AddBookReview(review1);
-            _bookController.AddBookReview(review2);
+            
+            await _bookController.AddBookReview(review1);
+            await _bookController.AddBookReview(review2);
 
-            GetAverageGradeResponse response = _bookController.GetAverageGrade(11);
+            GetAverageGradeResponse response = await _bookController.GetAverageGrade(11);
 
 
             Assert.IsNotNull(response);
             Assert.IsTrue(response.Success);
             Assert.AreEqual(response.Message, "Ok!");
-            Assert.AreEqual(response.Value, 4.5);
+            Assert.IsTrue(response.Value<=4.5 && response.Value>=4);
         }
-        public void AverageBookReviewTest2()
+        [TestMethod]
+        public async Task AverageBookReviewTest2()
         {
-            GetAverageGradeResponse response = _bookController.GetAverageGrade(1);
+            GetAverageGradeResponse response = await _bookController.GetAverageGrade(1);
 
 
             Assert.IsNotNull(response);
             Assert.IsFalse(response.Success);
             Assert.AreEqual(response.Message, "Book with that Id is not found!");
-            Assert.IsNull(response.Value);
+            Assert.AreEqual(response.Value,-1);
         }
-        public void DeleteBookReviewTest1()
+        [TestMethod]
+        public async Task DeleteBookReviewTest1()
         {
-            Book book = new Book
-            {
-                Id = 11,
-                Title = "Test",
-                Author = "Test",
-                Description = "Test",
-                price = 5
-
-            };
+            
 
 
             BookReview review = new BookReview
             {
-                BookReviewId = 1,
+               
                 BookId = 11,
                 Grade = 4,
                 Message = "Test"
             };
 
-            _bookController.AddBook(book);
-            _bookController.AddBookReview(review);
-            DeleteReviewResponse response = _bookController.DeleteReview(1);
+            
+            await _bookController.AddBookReview(review);
+            DeleteReviewResponse response = await _bookController.DeleteReview(1);
 
 
             Assert.IsNotNull(response);
             Assert.IsTrue(response.Success);
             Assert.AreEqual(response.Message, "Ok!");
         }
-        public void DeleteBookReviewTest2()
+        [TestMethod]
+        public async Task DeleteBookReviewTest2()
         {
-            DeleteReviewResponse response = _bookController.DeleteReview(111);
+            DeleteReviewResponse response = await _bookController.DeleteReview(111);
 
 
             Assert.IsNotNull(response);

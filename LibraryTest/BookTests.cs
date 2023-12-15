@@ -34,7 +34,7 @@ namespace LibraryTest
                 Title = "Title 1",
                 Author = "Author 1",
                 Description = "Description 1",
-                price = 1
+                Price = 1
             };
 
             var result = await bookController.AddBook(validBook) as OkObjectResult;
@@ -53,7 +53,7 @@ namespace LibraryTest
                 Title = "Title 1",
                 Author = "Author 1",
                 Description = "Description 1",
-                price = 1
+                Price = 1
             };
 
             var invalidBook = new Book
@@ -62,7 +62,7 @@ namespace LibraryTest
                 Title = "Title 2",
                 Author = "Author 2",
                 Description = "Description 2",
-                price = 2
+                Price = 2
             };
 
             var first = await bookController.AddBook(validBook) as OkObjectResult;
@@ -101,7 +101,7 @@ namespace LibraryTest
                 Title = "Title 1",
                 Author = "Author 1",
                 Description = "Description 1",
-                price = 1
+                Price = 1
             };
 
             var add = await bookController.AddBook(validBook) as OkObjectResult;

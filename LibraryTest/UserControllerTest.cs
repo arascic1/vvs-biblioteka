@@ -57,8 +57,8 @@ namespace LibraryTest
 
             var validBooks = new List<Book>
             {
-                new Book { Id = 1, Title = "Book1", Author = "Author1", Description = "Description1", price = 19 },
-                new Book { Id = 2, Title = "Book2", Author = "Author2", Description = "Description2", price = 14 }
+                new Book { Id = 1, Title = "Book1", Author = "Author1", Description = "Description1", Price = 19 },
+                new Book { Id = 2, Title = "Book2", Author = "Author2", Description = "Description2", Price = 14 }
             };
 
             _dbContext.Loan.AddRange(validLoansForUser);
@@ -89,8 +89,8 @@ namespace LibraryTest
 
             var books = new List<Book>
             {
-                new Book { Id = 1, Title = "Book1", Author = "Author1", Description = "Description1", price = 19 },
-                new Book { Id = 2, Title = "Book2", Author = "Author2", Description = "Description2", price = 14 }
+                new Book { Id = 1, Title = "Book1", Author = "Author1", Description = "Description1", Price = 19 },
+                new Book { Id = 2, Title = "Book2", Author = "Author2", Description = "Description2", Price = 14 }
             };
 
             _dbContext.Loan.AddRange(loansForUser);
@@ -162,8 +162,8 @@ namespace LibraryTest
 
             var loanedBooks = new List<Book>
             {
-                new Book { Id = 1, Title = "Book1", Author = "Author1", Description = "Description1", price = 19 },
-                new Book { Id = 2, Title = "Book2", Author = "Author2", Description = "Description2", price = 14 }
+                new Book { Id = 1, Title = "Book1", Author = "Author1", Description = "Description1", Price = 19 },
+                new Book { Id = 2, Title = "Book2", Author = "Author2", Description = "Description2", Price = 14 }
             };
 
             _loanControllerMock.Setup(x => x.GetLoanedBooks(userId)).Returns(new OkObjectResult(loansForUser));
