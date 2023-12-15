@@ -79,25 +79,32 @@ namespace VVS_biblioteka.Controllers
         [NonAction]
         public void ApplyCategorySpecificBenefits(User user, Loan loan)
         {
+            if (loan == null)
+                throw new ArgumentNullException("Loan can't be null.", nameof(loan));
+            else if (user == null)
+                throw new ArgumentNullException("User can't be null.",nameof(user));
+
             switch (user.UserType)
             {
                 case UserType.Student:
-                    loan.Price = CalculateDiscountedFee(loan.Price, 30);
-                    loan.Days = 60;
+                    ApplyBenefits(loan, 30, 60);
                     break;
                 case UserType.Ucenik:
-                    loan.Price = CalculateDiscountedFee(loan.Price, 10);
-                    loan.Days = 15;
+                    ApplyBenefits(loan, 10, 15);
                     break;
                 case UserType.Penzioner:
-                    loan.Price = CalculateDiscountedFee(loan.Price, 15);
-                    loan.Days = 30;
+                    ApplyBenefits(loan, 15, 30);
                     break;
                 case UserType.Dijete:
-                    loan.Price = CalculateDiscountedFee(loan.Price, 5);
-                    loan.Days = 10;
+                    ApplyBenefits(loan, 5, 10);
                     break;
             }
+        }
+
+        private void ApplyBenefits(Loan loan, int discountPercentage, int loanDays)
+        {
+            loan.Price = CalculateDiscountedFee(loan.Price, discountPercentage);
+            loan.Days = loanDays;
         }
 
         private decimal CalculateDiscountedFee(decimal baseFee, int discountPercentage)
