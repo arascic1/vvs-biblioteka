@@ -4,7 +4,7 @@ using VVS_biblioteka.Models;
 using Moq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
+using Microsoft.Extensions.Options;
 
 namespace LibraryTest
 {
@@ -114,6 +114,28 @@ namespace LibraryTest
         [TestMethod]
         public void LoanTest1()
         {
+            var options = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .Options;
+
+            using (var context = new LibDbContext(options))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                var book = new Book
+                {
+                    Id = 2,
+                    Author = "autor",
+                    Description = "description",
+                    price = 10,
+                    Title = "title"
+                };
+
+                context.Book.Add(book);
+                context.SaveChanges();
+            }
+
             LoanRequest request = new LoanRequest
             {
                 BookId = 2,
@@ -129,6 +151,28 @@ namespace LibraryTest
         [TestMethod]
         public void LoanTest2()
         {
+            var options = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .Options;
+
+            using (var context = new LibDbContext(options))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                var book = new Book
+                {
+                    Id = 2,
+                    Author = "autor",
+                    Description = "description",
+                    price = 10,
+                    Title = "title"
+                };
+
+                context.Book.Add(book);
+                context.SaveChanges();
+            }
+
             LoanRequest request = new LoanRequest
             {
                 BookId = 2,
@@ -143,51 +187,103 @@ namespace LibraryTest
         [TestMethod]
         public void LoanTest3()
         {
+            var options = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .Options;
+
+            using (var context = new LibDbContext(options))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                var book = new Book
+                {
+                    Id = 2,
+                    Author = "autor",
+                    Description = "description",
+                    price = 10,
+                    Title = "title"
+                };
+
+                var book2 = new Book
+                {
+                    Id = 3,
+                    Author = "autor",
+                    Description = "description",
+                    price = 10,
+                    Title = "title"
+                };
+
+                context.Book.Add(book);
+                context.Book.Add(book2);
+                context.SaveChanges();
+            }
+
             LoanRequest request = new LoanRequest
             {
                 BookId = 2,
                 UserId = 1
             };
+
             LoanRequest request2 = new LoanRequest
             {
                 BookId = 3,
                 UserId = 1
             };
+
             bookController.LoanBook(request);
             var result = bookController.LoanBook(request2).GetAwaiter().GetResult();
             Assert.AreEqual(result.Message, "You already loaned book!");
         }
 
         [TestMethod]
-        public async Task GetBookBackTest1()
+        public void GetBookBackTest1()
         {
+            var options = new DbContextOptionsBuilder<LibDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .Options;
+
+            using (var context = new LibDbContext(options))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                var book = new Book
+                {
+                    Id = 2,
+                    Author = "autor",
+                    Description = "description",
+                    price = 10,
+                    Title = "title"
+                };
+
+                context.Book.Add(book);
+                context.SaveChanges();
+            }
+
             LoanRequest request = new LoanRequest
             {
                 BookId = 2,
                 UserId = 1
             };
 
-            bookController.LoanBook(request);
+            bookController.LoanBook(request).GetAwaiter().GetResult();
             GetBookBackRequest request2 = new GetBookBackRequest { BookId = 2 };
-            var response = await bookController.GetBookBack(request2);
+            var response = bookController.GetBookBack(request2).GetAwaiter().GetResult();
             Assert.IsNotNull(response);
             Assert.IsTrue(response.Success);
         }
 
         [TestMethod]
-        public async Task GetBookBackTest2()
+        public void GetBookBackTest2()
         {
 
             GetBookBackRequest request2 = new GetBookBackRequest { BookId = 2 };
-            var response = await bookController.GetBookBack(request2);
+            var response = bookController.GetBookBack(request2).GetAwaiter().GetResult();
             Assert.IsNotNull(response);
             Assert.IsFalse(response.Success);
             Assert.AreEqual(response.Message, "Book with that id is not loaned!");
 
         }
-
-
-
-
     }
 }
