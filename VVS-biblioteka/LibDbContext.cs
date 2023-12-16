@@ -14,5 +14,7 @@ namespace VVS_biblioteka
         
         public DbSet<Book> Book {  get; set; }
         public DbSet<Loan> Loan { get; set; }
+
+        public DbSet<BookReview> BookReview { get; set; }
     }
 }

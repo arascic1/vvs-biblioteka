@@ -479,7 +479,6 @@ namespace LibraryTest
             {
                 context.User.Add(new User
                 {
-                    Id = 1,
                     FirstName = "John",
                     LastName = "Doe",
                     Email = "john.doe@example.com",

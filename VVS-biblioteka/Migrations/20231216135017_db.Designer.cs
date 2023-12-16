@@ -12,7 +12,7 @@ using VVS_biblioteka;
 namespace VVS_biblioteka.Migrations
 {
     [DbContext(typeof(LibDbContext))]
-    [Migration("20231211162408_db")]
+    [Migration("20231216135017_db")]
     partial class db
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,6 +47,29 @@ namespace VVS_biblioteka.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Book");
+                });
+
+            modelBuilder.Entity("VVS_biblioteka.Models.BookReview", b =>
+                {
+                    b.Property<int>("BookReviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookReviewId"), 1L, 1);
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Grade")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("BookReviewId");
+
+                    b.ToTable("BookReview");
                 });
 
             modelBuilder.Entity("VVS_biblioteka.Models.Loan", b =>

@@ -25,6 +25,21 @@ namespace VVS_biblioteka.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BookReview",
+                columns: table => new
+                {
+                    BookReviewId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BookId = table.Column<int>(type: "int", nullable: false),
+                    Grade = table.Column<int>(type: "int", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookReview", x => x.BookReviewId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Loan",
                 columns: table => new
                 {
@@ -64,6 +79,9 @@ namespace VVS_biblioteka.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Book");
+
+            migrationBuilder.DropTable(
+                name: "BookReview");
 
             migrationBuilder.DropTable(
                 name: "Loan");
