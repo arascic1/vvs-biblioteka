@@ -121,6 +121,9 @@ namespace LibraryTest
         [TestMethod]
         public void GetBookDetails_BookNotFound()
         {
+            _dbContext.Database.EnsureDeleted();
+            _dbContext.Database.EnsureCreated();
+
             var books = new List<Book>
             {
                 new Book { Id = 1, Title="Test", Author="TestAuthor", Description="Description",price = 10},
