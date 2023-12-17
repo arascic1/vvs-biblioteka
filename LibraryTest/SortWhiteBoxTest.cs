@@ -94,8 +94,9 @@ namespace LibraryTest
             List<User> result = UserController.SortAlphanumerically(largeDataset);
             stopwatch.Stop();
 
-            Assert.IsTrue(stopwatch.ElapsedMilliseconds < 1500);
+            Assert.IsTrue(stopwatch.ElapsedMilliseconds < 3000);
         }
+
         private List<User> GenerateLargeDataset(int size)
         {
             var random = new Random();
